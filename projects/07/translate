@@ -1,0 +1,319 @@
+#!/bin/bash
+
+LABELCOUNT=0
+
+function err() {
+    local msg="$1"
+    echo "Error: ${msg}" >&2
+}
+
+function err_and_quit() {
+    local msg="$1"
+    err "${msg}"
+    exit 1
+}
+
+function process_push() {
+    local name="$1"
+    local segment="$2"
+    local index="$3"
+    OUTPUT=
+
+    case "${segment}" in
+    constant)
+        OUTPUT="@${index}
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    local|argument|this|that)
+        if [ "${segment}" = "local" ]; then
+            register="LCL"
+        elif [ "${segment}" = "argument" ]; then
+            register="ARG"
+        elif [ "${segment}" = "this" ]; then
+            register="THIS"
+        elif [ "${segment}" = "that" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@${index}
+A=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    pointer)
+        if [ "${index}" = "0" ]; then
+            register="THIS"
+        elif [ "${index}" = "1" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    temp)
+        OUTPUT="@5
+D=A
+@${index}
+A=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    static)
+        OUTPUT="@${name}.${index}
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    *)
+        err "Unknown segment ${segment}"
+        ;;
+    esac
+}
+
+function process_pop() {
+    local name="$1"
+    local segment="$2"
+    local index="$3"
+    local register=
+    OUTPUT=
+
+    case "${segment}" in
+    local|argument|this|that)
+        if [ "${segment}" = "local" ]; then
+            register="LCL"
+        elif [ "${segment}" = "argument" ]; then
+            register="ARG"
+        elif [ "${segment}" = "this" ]; then
+            register="THIS"
+        elif [ "${segment}" = "that" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@${index}
+D=D+A
+@popaddr
+M=D
+@SP
+AM=M-1
+D=M
+@popaddr
+A=M
+M=D"
+        ;;
+    pointer)
+        if [ "${index}" = "0" ]; then
+            register="THIS"
+        elif [ "${index}" = "1" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@SP
+AM=M-1
+D=M
+@${register}
+M=D"
+        ;;
+    temp)
+        OUTPUT="@SP
+AM=M-1
+D=M
+@popval
+M=D
+@5
+D=A
+@${index}
+D=D+A
+@popaddr
+M=D
+@popval
+D=M
+@popaddr
+A=M
+M=D"
+        ;;
+    static)
+        OUTPUT="@SP
+AM=M-1
+D=M
+@${name}.${index}
+M=D"
+        ;;
+    *)
+        err "Unknown segment ${segment}"
+        ;;
+    esac
+}
+
+function process_one() {
+    local cmd="$1"
+    OUTPUT=
+
+    case "${cmd}" in
+    neg)
+        OUTPUT="@SP
+A=M-1
+M=-M"
+        ;;
+    not)
+        OUTPUT="@SP
+A=M-1
+M=!M"
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function process_two() {
+    local cmd="$1"
+    local op=
+    OUTPUT=
+
+    case "${cmd}" in
+    add|sub|and|or)
+        OUTPUT="@SP
+AM=M-1
+D=M
+A=A-1"
+
+        if [ "${cmd}" = "add" ]; then
+            OUTPUT="${OUTPUT}
+M=D+M"
+        elif [ "${cmd}" = "sub" ]; then
+            OUTPUT="${OUTPUT}
+M=M-D"
+        elif [ "${cmd}" = "and" ]; then
+            OUTPUT="${OUTPUT}
+M=D&M"
+        elif [ "${cmd}" = "or" ]; then
+            OUTPUT="${OUTPUT}
+M=D|M"
+        fi
+        ;;
+    eq|gt|lt) # x - y == 0, x - y > 0, x - y < 0
+        if [ "${cmd}" = "eq" ]; then
+            op="EQ"
+        elif [ "${cmd}" = "gt" ]; then
+            op="GT"
+        elif [ "${cmd}" = "lt" ]; then
+            op="LT"
+        fi
+
+        OUTPUT="@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+D=M-D
+@${op}${LABELCOUNT}
+D;J${op}
+@SP
+A=M
+M=0
+@${op}DONE${LABELCOUNT}
+0;JMP
+(${op}${LABELCOUNT})
+@SP
+A=M
+M=-1
+(${op}DONE${LABELCOUNT})
+@SP
+M=M+1"
+        (( LABELCOUNT++ ))
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function main() {
+    local name="$1"
+    local src="$2"
+    local dst="$3"
+
+    > "${dst}"
+
+#     output="@20
+# D=A
+# @SP
+# M=D"
+#     echo "${output}" >> "${dst}"
+
+    while read cmd arg1 arg2 arg3 rest; do
+        if [ -z "${cmd}" ]; then
+            continue
+        fi
+
+        # echo "Line: [${cmd}][${arg1}][${arg2}][${arg3}][${rest}]"
+
+        case "${cmd}" in
+        push)
+            process_push "${name}" "${arg1}" "${arg2}"
+            ;;
+        pop)
+            process_pop "${name}" "${arg1}" "${arg2}"
+            ;;
+        add|sub|eq|gt|lt|and|or)
+            process_two "${cmd}"
+            ;;
+        neg|not)
+            process_one "${cmd}"
+            ;;
+        *)
+            err "Unknown command ${cmd}"
+            ;;
+        esac
+    
+        if [ -n "${OUTPUT}" ]; then
+            echo "${OUTPUT}" >> "${dst}"
+        fi
+    done < <(grep -v "^//" "${src}" | grep -v "^$" | tr -d '\r')
+
+    output="(END)
+@END
+0;JMP"
+    echo "${output}" >> "${dst}"
+}
+
+echo "$@"
+
+src_file="$1"
+if [ -z "${src_file}" ]; then
+    exit 1
+fi
+if [ ! -r "${src_file}" ]; then
+    exit 1
+fi
+
+name="$(basename "${src_file}" ".vm")"
+dst_file="$(dirname "${src_file}")/${name}.asm"
+
+main "${name}" "${src_file}" "${dst_file}"
+# cat "${dst_file}"
