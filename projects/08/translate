@@ -1,0 +1,603 @@
+#!/bin/bash
+
+LABELCOUNT=0
+INFUNCTION=0
+FUNCTION_NAME=
+CALL_COUNT=0
+
+function err() {
+    local msg="$1"
+    echo "Error: ${msg}" >&2
+}
+
+function err_and_quit() {
+    local msg="$1"
+    err "${msg}"
+    exit 1
+}
+
+function process_push() {
+    local name="$1"
+    local segment="$2"
+    local index="$3"
+    OUTPUT=
+
+    case "${segment}" in
+    constant)
+        OUTPUT="@${index}
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    local|argument|this|that)
+        if [ "${segment}" = "local" ]; then
+            register="LCL"
+        elif [ "${segment}" = "argument" ]; then
+            register="ARG"
+        elif [ "${segment}" = "this" ]; then
+            register="THIS"
+        elif [ "${segment}" = "that" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@${index}
+A=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    pointer)
+        if [ "${index}" = "0" ]; then
+            register="THIS"
+        elif [ "${index}" = "1" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    temp)
+        OUTPUT="@5
+D=A
+@${index}
+A=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    static)
+        OUTPUT="@${name}.${index}
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1"
+        ;;
+    *)
+        err "Unknown segment ${segment}"
+        ;;
+    esac
+}
+
+function process_pop() {
+    local name="$1"
+    local segment="$2"
+    local index="$3"
+    local register=
+    OUTPUT=
+
+    case "${segment}" in
+    local|argument|this|that)
+        if [ "${segment}" = "local" ]; then
+            register="LCL"
+        elif [ "${segment}" = "argument" ]; then
+            register="ARG"
+        elif [ "${segment}" = "this" ]; then
+            register="THIS"
+        elif [ "${segment}" = "that" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@${register}
+D=M
+@${index}
+D=D+A
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D"
+        ;;
+    pointer)
+        if [ "${index}" = "0" ]; then
+            register="THIS"
+        elif [ "${index}" = "1" ]; then
+            register="THAT"
+        fi
+
+        OUTPUT="@SP
+AM=M-1
+D=M
+@${register}
+M=D"
+        ;;
+    temp)
+        OUTPUT="@SP
+AM=M-1
+D=M
+@R14
+M=D
+@5
+D=A
+@${index}
+D=D+A
+@R13
+M=D
+@R14
+D=M
+@R13
+A=M
+M=D"
+        ;;
+    static)
+        OUTPUT="@SP
+AM=M-1
+D=M
+@${name}.${index}
+M=D"
+        ;;
+    *)
+        err "Unknown segment ${segment}"
+        ;;
+    esac
+}
+
+function process_one() {
+    local cmd="$1"
+    OUTPUT=
+
+    case "${cmd}" in
+    neg)
+        OUTPUT="@SP
+A=M-1
+M=-M"
+        ;;
+    not)
+        OUTPUT="@SP
+A=M-1
+M=!M"
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function process_two() {
+    local cmd="$1"
+    local op=
+    OUTPUT=
+
+    case "${cmd}" in
+    add|sub|and|or)
+        OUTPUT="@SP
+AM=M-1
+D=M
+A=A-1"
+
+        if [ "${cmd}" = "add" ]; then
+            OUTPUT="${OUTPUT}
+M=D+M"
+        elif [ "${cmd}" = "sub" ]; then
+            OUTPUT="${OUTPUT}
+M=M-D"
+        elif [ "${cmd}" = "and" ]; then
+            OUTPUT="${OUTPUT}
+M=D&M"
+        elif [ "${cmd}" = "or" ]; then
+            OUTPUT="${OUTPUT}
+M=D|M"
+        fi
+        ;;
+    eq|gt|lt) # x - y == 0, x - y > 0, x - y < 0
+        if [ "${cmd}" = "eq" ]; then
+            op="EQ"
+        elif [ "${cmd}" = "gt" ]; then
+            op="GT"
+        elif [ "${cmd}" = "lt" ]; then
+            op="LT"
+        fi
+
+        OUTPUT="@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+D=M-D
+@${op}${LABELCOUNT}
+D;J${op}
+@SP
+A=M
+M=0
+@${op}DONE${LABELCOUNT}
+0;JMP
+(${op}${LABELCOUNT})
+@SP
+A=M
+M=-1
+(${op}DONE${LABELCOUNT})
+@SP
+M=M+1"
+        (( LABELCOUNT++ ))
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function process_branch() {
+    local name="$1"
+    local cmd="$2"
+    local label="$3"
+    OUTPUT=
+
+    if (( INFUNCTION == 1)); then
+        # label="${name}.${FUNCTION_NAME}\$${label}"
+        label="${FUNCTION_NAME}\$${label}"
+    fi
+    # echo "process_branch: INFUNCTION=[${INFUNCTION}] FUNCTION_NAME=[${FUNCTION_NAME}] label=[${label}]"
+
+    case "${cmd}" in
+    label)
+        OUTPUT="(${label})"
+        ;;
+    goto)
+        OUTPUT="@${label}
+0;JMP"
+        ;;
+    if-goto)
+        OUTPUT="@SP
+AM=M-1
+D=M
+@${label}
+D;JNE"
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function process_func() {
+    local name="$1"
+    local cmd="$2"
+    local label="$3"
+    local count="$4"
+    OUTPUT=
+
+    # echo "process_func: name=[${name}] cmd=[${cmd}] label=[${label}] count=[${count}]"
+    case "${cmd}" in
+    call)
+# push returnAddress
+# push LCL
+# push ARG
+# push THIS
+# push THAT
+# ARG=SP-5-nArgs
+# LCL=SP
+# goto f
+# (returnAddress)
+        OUTPUT="@${FUNCTION_NAME}\$ret.${CALL_COUNT}
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+D=M
+@5
+D=D-A
+@${count}
+D=D-A
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@${label}
+0;JMP
+(${FUNCTION_NAME}\$ret.${CALL_COUNT})"
+        (( CALL_COUNT++ ))
+        # echo "process_func.call: INFUNCTION=[${INFUNCTION}] FUNCTION_NAME=[${FUNCTION_NAME}] CALL_COUNT=[${CALL_COUNT}]"
+        ;;
+    function)
+        if (( INFUNCTION == 1 )); then
+            CALL_COUNT=0
+        fi
+        INFUNCTION=1
+        FUNCTION_NAME="${label}"
+        # OUTPUT="(${name}.${label})"
+        OUTPUT="(${label})"
+        if (( count > 0 )); then
+            OUTPUT="${OUTPUT}
+@${count}
+D=A
+@SP
+M=M+D
+@LCL
+A=M
+M=0"
+        fi
+        for (( i = 1; i < count; i++ )); do
+            OUTPUT="${OUTPUT}
+A=A+1
+M=0"
+        done
+        # echo "process_func.function: INFUNCTION=[${INFUNCTION}] FUNCTION_NAME=[${FUNCTION_NAME}] CALL_COUNT=[${CALL_COUNT}]"
+        ;;
+    return)
+        OUTPUT="@LCL
+D=M
+@R13
+M=D
+@5
+D=A
+@R13
+A=M-D
+D=M
+@R14
+M=D
+@SP
+AM=M-1
+D=M
+@ARG
+A=M
+M=D
+@ARG
+D=M+1
+@SP
+M=D
+@R13
+AM=M-1
+D=M
+@THAT
+M=D
+@R13
+AM=M-1
+D=M
+@THIS
+M=D
+@R13
+AM=M-1
+D=M
+@ARG
+M=D
+@R13
+AM=M-1
+D=M
+@LCL
+M=D
+@R14
+A=M
+0;JMP"
+        # echo "process_func.return: INFUNCTION=[${INFUNCTION}] FUNCTION_NAME=[${FUNCTION_NAME}] CALL_COUNT=[${CALL_COUNT}]"
+        ;;
+    *)
+        err "Unknown command ${cmd}"
+        ;;
+    esac
+}
+
+function process_line() {
+    local name="$1"
+    local cmd="$2"
+    local arg1="$3"
+    local arg2="$4"
+
+    # echo "Line: [${cmd}][${arg1}][${arg2}]"
+
+    case "${cmd}" in
+    push)
+        process_push "${name}" "${arg1}" "${arg2}"
+        ;;
+    pop)
+        process_pop "${name}" "${arg1}" "${arg2}"
+        ;;
+    add|sub|eq|gt|lt|and|or)
+        process_two "${cmd}"
+        ;;
+    neg|not)
+        process_one "${cmd}"
+        ;;
+    label|goto|if-goto)
+        process_branch "${name}" "${cmd}" "${arg1}"
+        ;;
+    call|function|return)
+        process_func "${name}" "${cmd}" "${arg1}" "${arg2}"
+        ;;
+    *)
+        err "Unknown command cmd=[${cmd}] arg1=[${arg1}] arg2=[${arg2}]"
+        ;;
+    esac
+}
+
+function process_file() {
+    local name="$1"
+    local src="$2"
+    local dst="$3"
+
+    > "${dst}"
+
+#     output="@20
+# D=A
+# @SP
+# M=D"
+#     echo "${output}" >> "${dst}"
+
+    while read cmd arg1 arg2 arg3 rest; do
+        if [ -z "${cmd}" ]; then
+            continue
+        fi
+
+        process_line "${name}" "${cmd}" "${arg1}" "${arg2}"
+
+        if [ -n "${OUTPUT}" ]; then
+            echo "${OUTPUT}" >> "${dst}"
+        fi
+    done < <(grep -v "^[[:space:]]*//" "${src}" | grep -v "^$" | tr -d '\r')
+
+    output="(END)
+@END
+0;JMP"
+    echo "${output}" >> "${dst}"
+}
+
+function process_dir() {
+    local name="$1"
+    local src_dir="$2"
+    local dst="$3"
+
+    > "${dst}"
+
+    output="@256
+D=A
+@SP
+M=D
+@bootstrap\$ret.0
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@5
+D=A
+@SP
+D=M-D
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@Sys.init
+0;JMP
+(bootstrap\$ret.0)"
+    echo "${output}" >> "${dst}"
+
+    while read file; do
+        name="$(basename "${file}" ".vm")"
+        while read cmd arg1 arg2 arg3 rest; do
+            if [ -z "${cmd}" ]; then
+                continue
+            fi
+
+            process_line "${name}" "${cmd}" "${arg1}" "${arg2}"
+
+            if [ -n "${OUTPUT}" ]; then
+                echo "${OUTPUT}" >> "${dst}"
+            fi
+        done < <(grep -v "^[[:space:]]*//" "${file}" | grep -v "^$" | tr -d '\r')
+    done < <(find "${src}" -name \*.vm -type f)
+
+#     output="(END)
+# @END
+# 0;JMP"
+#     echo "${output}" >> "${dst}"
+}
+
+src="$1"
+if [ -z "${src}" ]; then
+    exit 1
+fi
+if [ ! -r "${src}" ]; then
+    exit 1
+fi
+if [ -f "${src}" ]; then
+    name="$(basename "${src}" ".vm")"
+    dst="$(dirname "${src}")/${name}.asm"
+    process_file "${name}" "${src}" "${dst}"
+elif [ -d "${src}" ]; then
+    name="$(basename "${src}")"
+    dst="${src}/${name}.asm"
+    process_dir "${name}" "${src}" "${dst}"
+fi
