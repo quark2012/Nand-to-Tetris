@@ -1,0 +1,372 @@
+function Player.new 0
+push constant 9
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+call Const.MAX_SCORE 0
+pop this 2
+push pointer 0
+push constant 2
+push constant 4
+call Player.location 3
+pop temp 0
+push constant 0
+pop this 5
+push constant 0
+pop this 6
+push constant 0
+not
+pop this 7
+push constant 0
+pop this 8
+push pointer 0
+return
+function Player.location 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 3
+push argument 2
+pop this 4
+push constant 0
+return
+function Player.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+call String.dispose 1
+pop temp 0
+label IF_FALSE0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Player.x 0
+push argument 0
+pop pointer 0
+push this 3
+return
+function Player.y 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Player.strength 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Player.score 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Player.moves 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function Player.isAlive 0
+push argument 0
+pop pointer 0
+push this 7
+return
+function Player.win 0
+push argument 0
+pop pointer 0
+push this 8
+return
+function Player.item 0
+push argument 0
+pop pointer 0
+push this 6
+return
+function Player.setItem 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 6
+push constant 0
+return
+function Player.move 4
+push argument 0
+pop pointer 0
+push argument 1
+push argument 2
+call Room.canExit 2
+pop local 0
+push argument 1
+push argument 2
+call Room.isLocked 2
+pop local 1
+push this 3
+pop local 2
+push this 4
+pop local 3
+push local 0
+push local 1
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 2
+call Const.NORTH 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 2
+push constant 1
+sub
+pop local 2
+label IF_FALSE1
+push argument 2
+call Const.SOUTH 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 2
+push constant 1
+add
+pop local 2
+label IF_FALSE2
+push argument 2
+call Const.WEST 0
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 3
+push constant 1
+sub
+pop local 3
+label IF_FALSE3
+push argument 2
+call Const.EAST 0
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 3
+push constant 1
+add
+pop local 3
+label IF_FALSE4
+label IF_FALSE0
+push local 0
+not
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+call Const.MSG_MOVE_WALL 0
+return
+label IF_FALSE5
+push local 1
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+call Const.MSG_MOVE_LOCKED_DOOR 0
+return
+label IF_FALSE6
+push local 2
+push constant 5
+eq
+push local 3
+push constant 2
+eq
+and
+push local 0
+and
+push local 1
+not
+and
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push constant 0
+not
+pop this 8
+push constant 0
+return
+label IF_FALSE7
+push pointer 0
+push local 2
+push local 3
+call Player.location 3
+pop temp 0
+push this 5
+push constant 1
+add
+pop this 5
+push constant 0
+return
+function Player.get 1
+push argument 0
+pop pointer 0
+push argument 1
+call Room.item 1
+pop local 0
+push local 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+call Item.isHidden 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 6
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 0
+pop this 6
+push argument 1
+push constant 0
+call Room.setItem 2
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+call Const.MSG_GET_ITEM_FAIL 0
+return
+label IF_END2
+label IF_FALSE1
+label IF_FALSE0
+push constant 0
+return
+function Player.drop 0
+push argument 0
+pop pointer 0
+push this 6
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop this 6
+call Const.MSG_DROP_ITEM 0
+return
+label IF_FALSE0
+push constant 0
+return
+function Player.use 0
+push argument 0
+pop pointer 0
+push this 6
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 6
+push argument 1
+call Item.use 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function Player.attack 5
+push argument 0
+pop pointer 0
+push argument 1
+call Room.monster 1
+pop local 4
+push local 4
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push local 4
+call Monster.isAlive 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+return
+label IF_FALSE1
+push this 6
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+not
+pop local 0
+push constant 0
+pop local 2
+goto IF_END2
+label IF_FALSE2
+push this 6
+call Item.against 1
+pop local 0
+push this 6
+call Item.strengthBonus 1
+pop local 2
+label IF_END2
+push local 4
+call Monster.strength 1
+pop local 3
+push local 4
+call Monster.weak 1
+push local 0
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 3
+push local 2
+sub
+pop local 3
+label IF_FALSE3
+push this 1
+push local 3
+gt
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push this 2
+push local 4
+call Monster.score 1
+add
+pop this 2
+push local 4
+push constant 0
+call Monster.setAlive 2
+pop temp 0
+call Const.MSG_ATTACK_SUCCESS 0
+return
+goto IF_END4
+label IF_FALSE4
+push constant 0
+pop this 7
+call Const.MSG_ATTACK_FAIL 0
+return
+label IF_END4

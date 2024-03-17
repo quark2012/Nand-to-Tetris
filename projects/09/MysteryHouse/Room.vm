@@ -1,0 +1,217 @@
+function Room.new 0
+push constant 10
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 7
+push argument 1
+pop this 8
+push argument 2
+pop this 0
+push argument 3
+pop this 1
+push argument 4
+pop this 4
+push argument 5
+pop this 5
+push argument 5
+pop this 6
+push constant 0
+not
+pop this 9
+push constant 0
+pop this 2
+push constant 0
+pop this 3
+push pointer 0
+return
+function Room.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+call String.dispose 1
+pop temp 0
+label IF_FALSE0
+push this 1
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 1
+call String.dispose 1
+pop temp 0
+label IF_FALSE1
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Room.name 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Room.description 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Room.exits 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Room.locks 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function Room.monster 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Room.item 0
+push argument 0
+pop pointer 0
+push this 3
+return
+function Room.roomX 0
+push argument 0
+pop pointer 0
+push this 7
+return
+function Room.roomY 0
+push argument 0
+pop pointer 0
+push this 8
+return
+function Room.fog 0
+push argument 0
+pop pointer 0
+push this 9
+return
+function Room.setFog 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 9
+push constant 0
+return
+function Room.setMonster 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 2
+push constant 0
+return
+function Room.setItem 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 3
+push constant 0
+return
+function Room.canExit 0
+push argument 0
+pop pointer 0
+push this 4
+push argument 1
+and
+push argument 1
+eq
+return
+function Room.isLocked 0
+push argument 0
+pop pointer 0
+push this 5
+push argument 1
+and
+push argument 1
+eq
+return
+function Room.hasDoor 0
+push argument 0
+pop pointer 0
+push this 6
+push argument 1
+and
+push argument 1
+eq
+return
+function Room.search 0
+push argument 0
+pop pointer 0
+push this 3
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 3
+call Item.isHidden 1
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 3
+call Item.reveal 1
+pop temp 0
+label IF_FALSE1
+label IF_FALSE0
+push constant 0
+return
+function Room.unlock 0
+push argument 0
+pop pointer 0
+push constant 0
+pop this 5
+push constant 0
+return
+function Room.setMonsterInRoom 2
+push argument 1
+push argument 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push argument 2
+push local 0
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push argument 3
+call Room.setMonster 2
+pop temp 0
+push constant 0
+return
+function Room.setItemInRoom 2
+push argument 1
+push argument 0
+add
+pop pointer 1
+push that 0
+pop local 0
+push argument 2
+push local 0
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push argument 3
+call Room.setItem 2
+pop temp 0
+push constant 0
+return

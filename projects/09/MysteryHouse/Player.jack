@@ -1,0 +1,221 @@
+/**
+ * Implements the class for the hero of this game.
+ */
+class Player {
+    field String name; // name
+    field int strength; // strength
+    field int score; // current score
+    field int x, y; // user location
+    field int moveCounter; // move counter
+    field Item item; // item player is carrying
+    field boolean alive; // alive or dead
+    field boolean win; // win or lose
+
+    /** Constructs a new player. */
+    constructor Player new(String aName, int aStrength) {
+        let name = aName;
+        let strength = aStrength;
+
+        let score = Const.MAX_SCORE();
+        do location(2, 4);
+        let moveCounter = 0;
+        let item = null;
+        let alive = true;
+        let win = false;
+
+        return this;
+    }
+
+    /** Sets the location. */
+    method void location(int aX, int aY) {
+        let x = aX;
+        let y = aY;
+        return;
+    }
+ 
+    /** Disposes this object. */
+    method void dispose() {
+        if (~(name = null)) {
+            do name.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Returns x. */
+    method int x() {
+        return x;
+    }
+
+    /** Returns y. */
+    method int y() {
+        return y;
+    }
+
+    /** Returns strength. */
+    method int strength() {
+        return strength;
+    }
+
+    /** Returns score. */
+    method int score() {
+        return score;
+    }
+
+    /** Returns move counter. */
+    method int moves() {
+        return moveCounter;
+    }
+
+    /** Returns alive. */
+    method boolean isAlive() {
+        return alive;
+    }
+
+    /** Returns win. */
+    method boolean win() {
+        return win;
+    }
+
+    /** Returns item. */
+    method Item item() {
+        return item;
+    }
+
+    /** Sets item. */
+    method void setItem(Item aItem) {
+        let item = aItem;
+        return;
+    }
+
+    /** Moves player. */
+    method String move(Room room, int direction) {
+        var boolean canExit, isLocked;
+        var int nX, nY;
+
+        let canExit = room.canExit(direction);
+        let isLocked = room.isLocked(direction);
+        let nX = x;
+        let nY = y;
+        if (canExit & (~isLocked)) {
+            if (direction = Const.NORTH()) {
+                let nX = nX - 1;
+            }
+            if (direction = Const.SOUTH()) {
+                let nX = nX + 1;
+            }
+            if (direction = Const.WEST()) {
+                let nY = nY - 1;
+            }
+            if (direction = Const.EAST()) {
+                let nY = nY + 1;
+            }    
+        }
+
+        if (~canExit) {
+            return Const.MSG_MOVE_WALL();
+        }
+
+        if (isLocked) {
+            return Const.MSG_MOVE_LOCKED_DOOR();
+        }
+
+        // Checks for winning condition
+        if ((nX = 5) & (nY = 2) & canExit & (~isLocked)) {
+            let win = true;
+            return null;
+        }
+
+        do location(nX, nY);
+        let moveCounter = moveCounter + 1;
+        return null;
+    }
+
+    /** Gets item from room. */
+    method String get(Room room) {
+        var Item roomItem;
+
+        let roomItem = room.item();
+        if (~(roomItem = null)) {
+            if (~(roomItem.isHidden())) {
+                if (item = null) {
+                    let item = roomItem;
+                    do room.setItem(null);    
+                } else {
+                    return Const.MSG_GET_ITEM_FAIL();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /** Drops item. */
+    method String drop() {
+        if (~(item = null)) {
+            let item = null;
+            return Const.MSG_DROP_ITEM();
+        }
+        return null;
+    }
+
+    /** Uses item. */
+    method void use(Room room) {
+        if (~(item = null)) {
+            do item.use(room);
+        }
+        return;
+    }
+
+    /** Attacks monster. */
+    method String attack(Room room) {
+        var boolean against, weak;
+        var int strBonus, monsterStr;
+        var Monster monster;
+
+        // name, strength
+        // Player.new("Hero", 10);
+        // name, strength, score points, weak
+        // Monster.new("Vampire", 14, 15, false);
+        // Monster.new("Ogre", 11, 10, true);
+        // Monster.new("Orc", 8, 5, true);
+        // name, strength bonus, against
+        // Item.newWeapon("Sword", 3, true);
+        // Item.newWeapon("Crucifix", 5, false);
+
+        let monster = room.monster();
+        if (monster = null) {
+            return null;
+        }
+        if (~(monster.isAlive())) {
+            return null;
+        }
+
+        if (item = null) {
+            let against = true;
+            let strBonus = 0;
+        } else {
+            let against = item.against();
+            let strBonus = item.strengthBonus();
+        }
+        let monsterStr = monster.strength();
+
+        // monster is weak against item, its strength is reduced
+        if (monster.weak() = against) {
+            let monsterStr = monsterStr - strBonus;
+        }
+
+        // determine who is stronger
+        if (strength > monsterStr) {
+            // player stronger
+            let score = score + monster.score();
+            do monster.setAlive(false);
+            return Const.MSG_ATTACK_SUCCESS();
+        } else {
+            // monster stronger
+            let alive = false;
+            return Const.MSG_ATTACK_FAIL();
+        }
+    }
+
+}

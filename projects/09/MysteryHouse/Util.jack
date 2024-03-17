@@ -1,0 +1,43 @@
+/**
+ * Implements helper functions.
+ */
+ class Util {
+    /** Implements modulo. */
+    function int mod(int a, int n) {
+        return (a - (a / n * n));
+    }
+
+    /** Prints string and disposes it. */
+    function void print(String s) {
+        do Output.printString(s);
+        do s.dispose();
+        let s = null;
+        return;
+    }
+
+    /** Creates string with size length of character c. */
+    function String createString(int size, char c) {
+        var String str;
+        var int i;
+
+        let str = String.new(size);
+        let i = 0;
+        while (i < size) {
+            do str.appendChar(c);
+            let i = i + 1;
+        }
+
+        return str;
+    }
+
+    /** Prints true or false for boolean. */
+    function void printBool(boolean val) {
+        if (val) {
+            do Util.print("true");
+        } else {
+            do Util.print("false");
+        }
+        return;
+    }
+
+}

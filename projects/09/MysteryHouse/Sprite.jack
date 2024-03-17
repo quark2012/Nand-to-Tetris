@@ -1,0 +1,843 @@
+/**
+ * Implements the sprite drawing functions.
+ */
+ class Sprite {
+    // r: 0-15 (16), c: 0-31 (32), r * 512 + c
+    function int locate(int r, int c, int offset) {
+        return (r * Const.SCREEN_WIDTH_PIXELS()) + c + offset;
+    }
+
+    function void drawRoom(Room room, boolean showPlayer, int r, int c, int offset, int roomR, int roomC) {
+        var int l, i, j;
+
+        if (room = null) {
+            // outside
+            do Sprite.drawRoomSpecial(r, c, offset, roomR, roomC, Const.ROOM_SPECIAL_OUTSIDE());
+            return;
+        } else {
+            // show fog of war
+            if (room.fog()) {
+                do Sprite.drawRoomSpecial(r, c, offset, roomR, roomC, Const.ROOM_SPECIAL_FOG());
+                return;
+            }
+
+            // top - nw corner
+            let l = Sprite.locate(r, c, offset);
+            do Sprite.drawCornerNW(l, room);
+
+            // top - wall/empty/door
+            do Sprite.drawRoomBorder(r, c, offset, room, Const.NORTH());
+
+            // top - ne corner
+            let l = Sprite.locate(r, c + 4, offset);
+            do Sprite.drawCornerNE(l, room);
+
+            // middle - wall/empty/door
+            do Sprite.drawRoomBorder(r, c, offset, room, Const.WEST());
+
+            // middle - monster
+            let l = Sprite.locate(r + 1, c + 1, offset);
+            do Sprite.drawMonster(room.monster(), l);
+
+            // middle - player
+            let l = Sprite.locate(r + 1, c + 2, offset);
+            if (showPlayer) {
+                do Sprite.drawPlayer(l);
+            } else {
+                do Sprite.drawWhite(l);
+            }
+
+            // middle - item
+            let l = Sprite.locate(r + 1, c + 3, offset);
+            do Sprite.drawItem(room.item(), l);
+
+            // middle - wall/empty/door
+            do Sprite.drawRoomBorder(r, c, offset, room, Const.EAST());
+
+            // bottom - sw corner
+            let l = Sprite.locate(r + 2, c, offset);
+            do Sprite.drawCornerSW(l, room);
+
+            // bottom - wall/empty/door
+            do Sprite.drawRoomBorder(r, c, offset, room, Const.SOUTH());
+
+            // bottom - se corner
+            let l = Sprite.locate(r + 2, c + 4, offset);
+            do Sprite.drawCornerSE(l, room);
+        }
+
+        return;
+    }
+
+    function void drawRoomSpecial(int r, int c, int offset, int roomR, int roomC, int type) {
+        var int l, i, j;
+        let i = 0;
+        while (i < Const.MAP_ROOM_HEIGHT()) {
+            let j = 0;
+            while (j < Const.MAP_ROOM_WIDTH()) {
+                let l = Sprite.locate(r + i, c + j, offset);
+                if (type = Const.ROOM_SPECIAL_OUTSIDE()) {
+                    do Sprite.drawRoomSpecialOutside(l, roomR, roomC, i, j);
+                }
+                if (type = Const.ROOM_SPECIAL_FOG()) {
+                    do Sprite.drawFogOfWar(l);
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void drawRoomSpecialOutside(int l, int roomR, int roomC, int i, int j) {
+        // north of house
+        if ((roomR < 0) & (i = (Const.MAP_ROOM_HEIGHT() - 1))) {
+            // nw corner
+            if (roomC < 0) {
+                if (j = (Const.MAP_ROOM_WIDTH() - 1)) {
+                    do Sprite.drawWhite(l);
+                } else {
+                    do Sprite.drawOutside(l);
+                }
+                return;
+            }
+            // ne corner
+            if (roomC > (Const.HOUSE_SIZE() - 1)) {
+                if (j = 0) {
+                    do Sprite.drawWhite(l);
+                } else {
+                    do Sprite.drawOutside(l);
+                }
+                return;
+            }
+            do Sprite.drawWhite(l);
+            return;
+        }
+
+        // south of house
+        if ((roomR > (Const.HOUSE_SIZE() - 1)) & (i = 0)) {
+            // sw corner
+            if (roomC < 0) {
+                if (j = (Const.MAP_ROOM_WIDTH() - 1)) {
+                    do Sprite.drawWhite(l);
+                } else {
+                    do Sprite.drawOutside(l);
+                }
+                return;
+            }
+            // se corner
+            if (roomC > (Const.HOUSE_SIZE() - 1)) {
+                if (j = 0) {
+                    do Sprite.drawWhite(l);
+                } else {
+                    do Sprite.drawOutside(l);
+                }
+                return;
+            }
+            do Sprite.drawWhite(l);
+            return;
+        }
+
+        // west of house
+        if ((roomR > -1) & (roomR < (Const.HOUSE_SIZE())) & (roomC < 0) & (j = (Const.MAP_ROOM_WIDTH() - 1))) {
+            do Sprite.drawWhite(l);
+            return;
+        }
+
+        // east of house
+        if ((roomR > -1) & (roomR < (Const.HOUSE_SIZE())) & (roomC > (Const.HOUSE_SIZE() - 1)) & (j = 0)) {
+            do Sprite.drawWhite(l);
+            return;
+        }
+    
+        // rest of outside
+        do Sprite.drawOutside(l);
+        return;
+    }
+
+    function void drawRoomBorderDir(int r, int c, int offset, int direction, int type) {
+        var int i, l;
+
+        if (direction = Const.WEST()) {
+            let l = Sprite.locate(r + 1, c, offset);
+            if (type = Const.ROOM_BORDER_WALL()) {
+                do Sprite.drawWallW(l);
+            }
+            if (type = Const.ROOM_BORDER_DOOR()) {
+                do Sprite.drawDoorW(l);
+            }
+            if (type = Const.ROOM_BORDER_OPEN()) {
+                do Sprite.drawWhite(l);
+            }
+            return;
+        }
+        if (direction = Const.EAST()) {
+            let l = Sprite.locate(r + 1, c + 4, offset);
+            if (type = Const.ROOM_BORDER_WALL()) {
+                do Sprite.drawWallE(l);
+            }
+            if (type = Const.ROOM_BORDER_DOOR()) {
+                do Sprite.drawDoorE(l);
+            }
+            if (type = Const.ROOM_BORDER_OPEN()) {
+                do Sprite.drawWhite(l);
+            }
+            return;
+        }
+
+        let i = 0;
+        while (i < 3) {
+            if (direction = Const.NORTH()) {
+                let l = Sprite.locate(r, c + 1 + i, offset);
+                if (type = Const.ROOM_BORDER_WALL()) {
+                    do Sprite.drawWallN(l);
+                }
+                if (type = Const.ROOM_BORDER_DOOR()) {
+                    do Sprite.drawDoorN(l);
+                }
+                if (type = Const.ROOM_BORDER_OPEN()) {
+                    do Sprite.drawWhite(l);
+                }
+            }
+            if (direction = Const.SOUTH()) {
+                let l = Sprite.locate(r + 2, c + 1 + i, offset);
+                if (type = Const.ROOM_BORDER_WALL()) {
+                    do Sprite.drawWallS(l);
+                }
+                if (type = Const.ROOM_BORDER_DOOR()) {
+                    do Sprite.drawDoorS(l);
+                }
+                if (type = Const.ROOM_BORDER_OPEN()) {
+                    do Sprite.drawWhite(l);
+                }
+            }
+
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function void drawRoomBorder(int r, int c, int offset, Room room, int direction) {
+        if (room.canExit(direction)) {
+            if (room.isLocked(direction)) {
+                // door
+                do Sprite.drawRoomBorderDir(r, c, offset, direction, Const.ROOM_BORDER_DOOR());
+            } else {
+                // open
+                do Sprite.drawRoomBorderDir(r, c, offset, direction, Const.ROOM_BORDER_OPEN());
+            }
+        } else {
+            // wall
+            do Sprite.drawRoomBorderDir(r, c, offset, direction, Const.ROOM_BORDER_WALL());
+        }
+        return;
+    }
+
+    function void drawCornerNW(int l, Room room) {
+        if (room.canExit(Const.NORTH()) & (~room.hasDoor(Const.NORTH()))) {
+            if (room.canExit(Const.WEST()) & (~room.hasDoor(Const.WEST()))) {
+                // N: space, W: space
+                do Sprite.drawCornerNWBothOpen(l);
+            } else {
+                // N: space, W: wall
+                do Sprite.drawWallW(l);
+            }
+        } else {
+            if (room.canExit(Const.WEST()) & (~room.hasDoor(Const.WEST()))) {
+                // N: wall, W: space
+                do Sprite.drawWallN(l);
+            } else {
+                // N: wall, W: wall
+                do Sprite.drawCornerNWBothWalls(l);
+            }
+        }
+        return;
+    }
+
+    function void drawCornerNE(int l, Room room) {
+        if (room.canExit(Const.NORTH()) & (~room.hasDoor(Const.NORTH()))) {
+            if (room.canExit(Const.EAST()) & (~room.hasDoor(Const.EAST()))) {
+                // N: space, E: space
+                do Sprite.drawCornerNEBothOpen(l);
+            } else {
+                // N: space, E: wall
+                do Sprite.drawWallE(l);
+            }
+        } else {
+            if (room.canExit(Const.EAST()) & (~room.hasDoor(Const.EAST()))) {
+                // N: wall, E: space
+                do Sprite.drawWallN(l);
+            } else {
+                // N: wall, E: wall
+                do Sprite.drawCornerNEBothWalls(l);
+            }
+        }
+        return;
+    }
+
+    function void drawCornerSW(int l, Room room) {
+        if (room.canExit(Const.SOUTH()) & (~room.hasDoor(Const.SOUTH()))) {
+            if (room.canExit(Const.WEST()) & (~room.hasDoor(Const.WEST()))) {
+                // S: space, W: space
+                do Sprite.drawCornerSWBothOpen(l);
+            } else {
+                // S: space, W: wall
+                do Sprite.drawWallW(l);
+            }
+        } else {
+            if (room.canExit(Const.WEST()) & (~room.hasDoor(Const.WEST()))) {
+                // S: wall, W: space
+                do Sprite.drawWallS(l);
+            } else {
+                // S: wall, W: wall
+                do Sprite.drawCornerSWBothWalls(l);
+            }
+        }
+        return;
+    }
+
+    function void drawCornerSE(int l, Room room) {
+        if (room.canExit(Const.SOUTH()) & (~room.hasDoor(Const.SOUTH()))) {
+            if (room.canExit(Const.EAST()) & (~room.hasDoor(Const.EAST()))) {
+                // S: space, E: space
+                do Sprite.drawCornerSEBothOpen(l);
+            } else {
+                // S: space, E: wall
+                do Sprite.drawWallE(l);
+            }
+        } else {
+            if (room.canExit(Const.EAST()) & (~room.hasDoor(Const.EAST()))) {
+                // S: wall, E: space
+                do Sprite.drawWallS(l);
+            } else {
+                // S: wall, E: wall
+                do Sprite.drawCornerSEBothWalls(l);
+            }
+        }
+        return;
+    }
+
+    function void drawMonster(Monster monster, int l) {
+        var int id;
+
+        if (~(monster = null)) {
+            let id = monster.id();
+            if (id = Const.CREATURE_VAMPIRE()) {
+                do Sprite.drawVampire(l);
+            }
+            if (id = Const.CREATURE_OGRE()) {
+                do Sprite.drawOgre(l);
+            }
+            if (id = Const.CREATURE_ORC()) {
+                do Sprite.drawOrc(l);
+            }
+        } else {
+            do Sprite.drawWhite(l);
+        }
+        return;
+    }
+
+    function void drawItem(Item item, int l) {
+        var int id;
+
+        if (~(item = null)) {
+            if (~item.isHidden()) {
+                let id = item.id();
+                if (id = Const.ITEM_NOTE()) {
+                    do Sprite.drawNote(l);
+                }
+                if (id = Const.ITEM_SWORD()) {
+                    do Sprite.drawSword(l);
+                }
+                if (id = Const.ITEM_CRUCIFIX()) {
+                    do Sprite.drawCrucifix(l);
+                }
+                if (id = Const.ITEM_LOCK_PICK()) {
+                    do Sprite.drawLockPick(l);
+                }
+                if (id = Const.ITEM_GOLD_KEY()) {
+                    do Sprite.drawGoldKey(l);
+                }
+            } else {
+                do Sprite.drawWhite(l);
+            }
+        } else {
+            do Sprite.drawWhite(l);
+        }
+        return;
+    }
+
+    function void drawPattern(int location, int pattern) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , pattern);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawBlack(int location) {
+        do Sprite.drawPattern(location, -1);
+        return;
+    }
+
+    function void drawWhite(int location) {
+        do Sprite.drawPattern(location, 0);
+        return;
+    }
+
+    function void drawCornerNWBothWalls(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -1);
+        do Memory.poke(memAddress+32, -1);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , 3);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawCornerNWBothOpen(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 3);
+        do Memory.poke(memAddress+32, 3);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawCornerNEBothWalls(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -1);
+        do Memory.poke(memAddress+32, -1);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , -16384);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawCornerNEBothOpen(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -16384);
+        do Memory.poke(memAddress+32, -16384);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawCornerSWBothWalls(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , 3);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+    function void drawCornerSWBothOpen(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, 3);
+        do Memory.poke(memAddress+480, 3);
+        return;
+    }
+
+    function void drawCornerSEBothWalls(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , -16384);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+    function void drawCornerSEBothOpen(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, -16384);
+        do Memory.poke(memAddress+480, -16384);
+        return;
+    }
+
+    function void drawWallN(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -1);
+        do Memory.poke(memAddress+32, -1);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawWallS(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+    function void drawWallW(int location) {
+        do Sprite.drawPattern(location, 3);
+        return;
+    }
+
+    function void drawWallE(int location) {
+        do Sprite.drawPattern(location, -16384);
+        return;
+    }
+
+    function void drawDoorN(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -1);
+        do Memory.poke(memAddress+32, 384);
+        let i = 64;
+        while (i < Const.SCREEN_WIDTH_PIXELS()) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        return;
+    }
+
+    function void drawDoorS(int location) {
+        var int memAddress, i;
+        let memAddress = 16384+location;
+        let i = 0;
+        while (i < 448) {
+            do Memory.poke(memAddress + i , 0);
+            let i = i + 32;
+        }
+        do Memory.poke(memAddress+448, 384);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+    function void drawDoorW(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 1);
+        do Memory.poke(memAddress+32, 1);
+        do Memory.poke(memAddress+64, 1);
+        do Memory.poke(memAddress+96, 1);
+        do Memory.poke(memAddress+128, 1);
+        do Memory.poke(memAddress+160, 1);
+        do Memory.poke(memAddress+192, 1);
+        do Memory.poke(memAddress+224, 3);
+        do Memory.poke(memAddress+256, 3);
+        do Memory.poke(memAddress+288, 1);
+        do Memory.poke(memAddress+320, 1);
+        do Memory.poke(memAddress+352, 1);
+        do Memory.poke(memAddress+384, 1);
+        do Memory.poke(memAddress+416, 1);
+        do Memory.poke(memAddress+448, 1);
+        do Memory.poke(memAddress+480, 1);
+        return;
+    }
+
+    function void drawDoorE(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -32767 - 1);
+        do Memory.poke(memAddress+32, -32767 - 1);
+        do Memory.poke(memAddress+64, -32767 - 1);
+        do Memory.poke(memAddress+96, -32767 - 1);
+        do Memory.poke(memAddress+128, -32767 - 1);
+        do Memory.poke(memAddress+160, -32767 - 1);
+        do Memory.poke(memAddress+192, -32767 - 1);
+        do Memory.poke(memAddress+224, -16384);
+        do Memory.poke(memAddress+256, -16384);
+        do Memory.poke(memAddress+288, -32767 - 1);
+        do Memory.poke(memAddress+320, -32767 - 1);
+        do Memory.poke(memAddress+352, -32767 - 1);
+        do Memory.poke(memAddress+384, -32767 - 1);
+        do Memory.poke(memAddress+416, -32767 - 1);
+        do Memory.poke(memAddress+448, -32767 - 1);
+        do Memory.poke(memAddress+480, -32767 - 1);
+        return;
+    }
+
+    function void drawPlayer(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 448);
+        do Memory.poke(memAddress+64, 960);
+        do Memory.poke(memAddress+96, 640);
+        do Memory.poke(memAddress+128, 960);
+        do Memory.poke(memAddress+160, 384);
+        do Memory.poke(memAddress+192, 2048);
+        do Memory.poke(memAddress+224, 5056);
+        do Memory.poke(memAddress+256, 3024);
+        do Memory.poke(memAddress+288, 456);
+        do Memory.poke(memAddress+320, 16);
+        do Memory.poke(memAddress+352, 960);
+        do Memory.poke(memAddress+384, 0);
+        do Memory.poke(memAddress+416, 576);
+        do Memory.poke(memAddress+448, 1632);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawVampire(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, 8200);
+        do Memory.poke(memAddress+160, 25676);
+        do Memory.poke(memAddress+192, -2082);
+        do Memory.poke(memAddress+224, -18118);
+        do Memory.poke(memAddress+256, -31838);
+        do Memory.poke(memAddress+288, 16388);
+        do Memory.poke(memAddress+320, 17476);
+        do Memory.poke(memAddress+352, 8200);
+        do Memory.poke(memAddress+384, 0);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawOgre(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 240);
+        do Memory.poke(memAddress+64, 504);
+        do Memory.poke(memAddress+96, 3580);
+        do Memory.poke(memAddress+128, 7356);
+        do Memory.poke(memAddress+160, 16028);
+        do Memory.poke(memAddress+192, 30408);
+        do Memory.poke(memAddress+224, 28256);
+        do Memory.poke(memAddress+256, 28416);
+        do Memory.poke(memAddress+288, 28544);
+        do Memory.poke(memAddress+320, 26560);
+        do Memory.poke(memAddress+352, 14288);
+        do Memory.poke(memAddress+384, 13200);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 3168);
+        do Memory.poke(memAddress+480, 7792);
+        return;
+    }
+
+    function void drawOrc(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, 8);
+        do Memory.poke(memAddress+160, 28);
+        do Memory.poke(memAddress+192, 56);
+        do Memory.poke(memAddress+224, 272);
+        do Memory.poke(memAddress+256, 5008);
+        do Memory.poke(memAddress+288, 9544);
+        do Memory.poke(memAddress+320, 4756);
+        do Memory.poke(memAddress+352, 2080);
+        do Memory.poke(memAddress+384, 896);
+        do Memory.poke(memAddress+416, 32);
+        do Memory.poke(memAddress+448, 3136);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawNote(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 506);
+        do Memory.poke(memAddress+64, 32762);
+        do Memory.poke(memAddress+96, 32256);
+        do Memory.poke(memAddress+128, 496);
+        do Memory.poke(memAddress+160, 8080);
+        do Memory.poke(memAddress+192, 6264);
+        do Memory.poke(memAddress+224, 4072);
+        do Memory.poke(memAddress+256, 2744);
+        do Memory.poke(memAddress+288, 4088);
+        do Memory.poke(memAddress+320, 4064);
+        do Memory.poke(memAddress+352, 26);
+        do Memory.poke(memAddress+384, 2042);
+        do Memory.poke(memAddress+416, 16352);
+        do Memory.poke(memAddress+448, 14336);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawSword(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 24576);
+        do Memory.poke(memAddress+64, 12288);
+        do Memory.poke(memAddress+96, 6144);
+        do Memory.poke(memAddress+128, 3072);
+        do Memory.poke(memAddress+160, 1536);
+        do Memory.poke(memAddress+192, 768);
+        do Memory.poke(memAddress+224, 388);
+        do Memory.poke(memAddress+256, 200);
+        do Memory.poke(memAddress+288, 112);
+        do Memory.poke(memAddress+320, 32);
+        do Memory.poke(memAddress+352, 72);
+        do Memory.poke(memAddress+384, 140);
+        do Memory.poke(memAddress+416, 6);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawCrucifix(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 384);
+        do Memory.poke(memAddress+128, 384);
+        do Memory.poke(memAddress+160, 2016);
+        do Memory.poke(memAddress+192, 2016);
+        do Memory.poke(memAddress+224, 384);
+        do Memory.poke(memAddress+256, 384);
+        do Memory.poke(memAddress+288, 384);
+        do Memory.poke(memAddress+320, 384);
+        do Memory.poke(memAddress+352, 384);
+        do Memory.poke(memAddress+384, 384);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawLockPick(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 240);
+        do Memory.poke(memAddress+96, 392);
+        do Memory.poke(memAddress+128, 16324);
+        do Memory.poke(memAddress+160, 8708);
+        do Memory.poke(memAddress+192, 3972);
+        do Memory.poke(memAddress+224, 2564);
+        do Memory.poke(memAddress+256, 424);
+        do Memory.poke(memAddress+288, 6128);
+        do Memory.poke(memAddress+320, 7200);
+        do Memory.poke(memAddress+352, 32);
+        do Memory.poke(memAddress+384, 96);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawGoldKey(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 192);
+        do Memory.poke(memAddress+96, 288);
+        do Memory.poke(memAddress+128, 288);
+        do Memory.poke(memAddress+160, 192);
+        do Memory.poke(memAddress+192, 1008);
+        do Memory.poke(memAddress+224, 0);
+        do Memory.poke(memAddress+256, 64);
+        do Memory.poke(memAddress+288, 192);
+        do Memory.poke(memAddress+320, 1216);
+        do Memory.poke(memAddress+352, 1728);
+        do Memory.poke(memAddress+384, 704);
+        do Memory.poke(memAddress+416, 1728);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawFogOfWar(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -21846);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 21845);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, -21846);
+        do Memory.poke(memAddress+160, 0);
+        do Memory.poke(memAddress+192, 21845);
+        do Memory.poke(memAddress+224, 0);
+        do Memory.poke(memAddress+256, -21846);
+        do Memory.poke(memAddress+288, 0);
+        do Memory.poke(memAddress+320, 21845);
+        do Memory.poke(memAddress+352, 0);
+        do Memory.poke(memAddress+384, -21846);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 21845);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+
+    function void drawOutside(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -1);
+        do Memory.poke(memAddress+32, -3);
+        do Memory.poke(memAddress+64, -6);
+        do Memory.poke(memAddress+96, -1);
+        do Memory.poke(memAddress+128, -1);
+        do Memory.poke(memAddress+160, -1);
+        do Memory.poke(memAddress+192, -1);
+        do Memory.poke(memAddress+224, -1);
+        do Memory.poke(memAddress+256, -1);
+        do Memory.poke(memAddress+288, -513);
+        do Memory.poke(memAddress+320, -1281);
+        do Memory.poke(memAddress+352, -1);
+        do Memory.poke(memAddress+384, -1);
+        do Memory.poke(memAddress+416, -1);
+        do Memory.poke(memAddress+448, -1);
+        do Memory.poke(memAddress+480, -1);
+        return;
+    }
+
+}

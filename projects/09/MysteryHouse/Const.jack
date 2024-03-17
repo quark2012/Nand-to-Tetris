@@ -1,0 +1,346 @@
+/**
+ * Implements the constants.
+ */
+class Const {
+    static Array lang;
+
+    function void init() {
+        let lang = Array.new(29);
+
+        // let lang[0] = "................................................................";
+        let lang[0] = "                                                                ";
+        // let lang[1] = "........................................";
+        let lang[1] = "                                        ";
+        // let lang[2] = "___________________________";
+        let lang[2] = "                        ";
+        //     "                                                                "
+        let lang[3] = "attack(a) drop(d) get(g) search(s) use(u)";
+        let lang[4] = "north(up) south(down) west(left) east(right) quit(q)";
+        let lang[5] = "You had successfully killed the creature.";
+        let lang[6] = "You had been killed by the creature.";
+        let lang[7] = "Congratulations! You had won the game.";
+        let lang[8] = "Your final score is ";
+        let lang[9] = "Alas! You have been killed!";
+        let lang[10] = "You took ";
+        let lang[11] = " turns and you made ";
+        let lang[12] = " moves.";
+        let lang[13] = "The door is locked.";
+        let lang[14] = "*BONK* You bang your head against the wall.";
+        let lang[15] = "You are already carrying something.";
+        let lang[16] = "The item has vanished into thin air.";
+        let lang[17] = "You are in the ";
+        let lang[18] = "There is a ";
+        let lang[19] = " here.";
+        let lang[20] = "There is ";
+        let lang[21] = "a dead ";
+        let lang[22] = "Carrying: ";
+        let lang[23] = "nothing";
+        let lang[24] = "Turn: ";
+        let lang[25] = "Score: ";
+        let lang[26] = "Moves: ";
+        let lang[27] = "+-------+-------+-------+";
+        let lang[28] = "|       |       |       |";
+
+        return;
+    }
+
+    /** A string of 64 spaces. */
+    function String BLANK_LINE64() {
+        return lang[0];
+    }
+
+    /** A string of 40 spaces. */
+    function String BLANK_LINE40() {
+        return lang[1];
+    }
+
+    /** A string of 24 spaces. */
+    function String BLANK_LINE24() {
+        return lang[2];
+    }
+
+    function String MSG_SECTION_HELP1() {
+        return lang[3];
+    }
+
+    function String MSG_SECTION_HELP2() {
+        return lang[4];
+    }
+
+    function String MSG_ATTACK_SUCCESS() {
+        return lang[5];
+    }
+
+    function String MSG_ATTACK_FAIL() {
+        return lang[6];
+    }
+
+    function String MSG_WIN() {
+        return lang[7];
+    }
+
+    function String MSG_WIN_SCORE() {
+        return lang[8];
+    }
+
+    function String MSG_LOSE() {
+        return lang[9];
+    }
+
+    function String MSG_TURNS_MOVES1() {
+        return lang[10];
+    }
+
+    function String MSG_TURNS_MOVES2() {
+        return lang[11];
+    }
+
+    function String MSG_TURNS_MOVES3() {
+        return lang[12];
+    }
+
+    function String MSG_MOVE_LOCKED_DOOR() {
+        return lang[13];
+    }
+
+    function String MSG_MOVE_WALL() {
+        return lang[14];
+    }
+
+    function String MSG_GET_ITEM_FAIL() {
+        return lang[15];
+    }
+
+    function String MSG_DROP_ITEM() {
+        return lang[16];
+    }
+
+    function String MSG_SECTION_ROOM_ROOM_START() {
+        return lang[17];
+    }
+
+    function String MSG_SECTION_ROOM_ITEM_START() {
+        return lang[18];
+    }
+
+    function String MSG_SECTION_ROOM_ITEM_END() {
+        return lang[19];
+    }
+
+    function String MSG_SECTION_ROOM_MONSTER_START() {
+        return lang[20];
+    }
+
+    function String MSG_SECTION_ROOM_MONSTER_DEAD() {
+        return lang[21];
+    }
+
+    function String MSG_SECTION_ROOM_MONSTER_END() {
+        return lang[19];
+    }
+
+    function String MSG_SECTION_INVENTORY_CARRYING() {
+        return lang[22];
+    }
+
+    function String MSG_SECTION_INVENTORY_NOTHING() {
+        return lang[23];
+    }
+
+    function String MSG_SECTION_STATS_TURN() {
+        return lang[24];
+    }
+
+    function String MSG_SECTION_STATS_SCORE() {
+        return lang[25];
+    }
+
+    function String MSG_SECTION_STATS_MOVES() {
+        return lang[26];
+    }
+
+    function String MSG_SECTION_MAP_HORIZONTAL_WALL1() {
+        return lang[27];
+    }
+
+    function String MSG_SECTION_MAP_HORIZONTAL_WALL2() {
+        return lang[28];
+    }
+
+    function int SYMBOL_PERIOD() {
+        return 46;
+    }
+
+    function int SYMBOL_SPACE() {
+        return 32;
+    }
+
+    function String MSG_GRAMMAR_A() {
+        return "a";
+    }
+
+    function String MSG_GRAMMAR_AN() {
+        return "an";
+    }
+
+    /** Indicates the North direction. */
+    function int NORTH() {
+        return 1;
+    }
+
+    /** Indicates the East direction. */
+    function int EAST() {
+        return 2;
+    }
+
+    /** Indicates the South direction. */
+    function int SOUTH() {
+        return 4;
+    }
+
+    /** Indicates the West direction. */
+    function int WEST() {
+        return 8;
+    }
+
+    /** Indicates the item is a note. */
+    function int NOTE() {
+        return 1;
+    }
+
+    /** Indicates the item is a weapon. */
+    function int WEAPON() {
+        return 2;
+    }
+
+    /** Indicates the item is a key. */
+    function int KEY() {
+        return 3;
+    }
+
+    /** Size of the square house. */
+    function int HOUSE_SIZE() {
+        return 5;
+    }
+
+    /** Number of monsters. */
+    function int MONSTERS_SIZE() {
+        return 3;
+    }
+
+    /** Number of items. */
+    function int ITEMS_SIZE() {
+        return 5;
+    }
+
+    /** Maximum score. */
+    function int MAX_SCORE() {
+        return 100;
+    }
+
+    /** Maximum size of inventory. */
+    function int INVENTORY_SIZE() {
+        return 5;
+    }
+
+    /** Maxiumum screen height. */
+    function int SCREEN_HEIGHT() {
+        return 23;
+    }
+
+    /** Maxiumum screen width. */
+    function int SCREEN_WIDTH() {
+        return 64;
+    }
+
+    /** Maxiumum screen height. */
+    function int SCREEN_HEIGHT_PIXELS() {
+        return 256;
+    }
+
+    /** Maxiumum screen width. */
+    function int SCREEN_WIDTH_PIXELS() {
+        return 512;
+    }
+
+    /** RAM address of display. */
+    function int SCREEN() {
+        return 16384;
+    }
+
+    /** Indicates the item is a note. */
+    function int ITEM_NOTE() {
+        return 1;
+    }
+
+    /** Indicates the item is a sword. */
+    function int ITEM_SWORD() {
+        return 2;
+    }
+
+    /** Indicates the item is a crucifix. */
+    function int ITEM_CRUCIFIX() {
+        return 3;
+    }
+
+    /** Indicates the item is a lock pick. */
+    function int ITEM_LOCK_PICK() {
+        return 4;
+    }
+
+    /** Indicates the item is a gold key. */
+    function int ITEM_GOLD_KEY() {
+        return 5;
+    }
+
+    /** Indicates the creature is a vampire. */
+    function int CREATURE_VAMPIRE() {
+        return 1;
+    }
+
+    /** Indicates the creature is a ogre. */
+    function int CREATURE_OGRE() {
+        return 2;
+    }
+
+    /** Indicates the creature is a orc. */
+    function int CREATURE_ORC() {
+        return 3;
+    }
+
+    /** Indicates the width of room. */
+    function int MAP_ROOM_WIDTH() {
+        return 5;
+    }
+
+    /** Indicates the height of room. */
+    function int MAP_ROOM_HEIGHT() {
+        return 3;
+    }
+
+    /** Indicates special room type - outside. */
+    function int ROOM_SPECIAL_OUTSIDE() {
+        return 1;
+    }
+
+    /** Indicates special room type - fog. */
+    function int ROOM_SPECIAL_FOG() {
+        return 2;
+    }
+
+    /** Indicates room border - wall. */
+    function int ROOM_BORDER_WALL() {
+        return 1;
+    }
+
+    /** Indicates room border - door. */
+    function int ROOM_BORDER_DOOR() {
+        return 2;
+    }
+
+    /** Indicates room border - open. */
+    function int ROOM_BORDER_OPEN() {
+        return 3;
+    }
+
+}

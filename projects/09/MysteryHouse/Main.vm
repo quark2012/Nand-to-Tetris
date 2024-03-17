@@ -1,0 +1,11 @@
+function Main.main 1
+call MysteryHouse.new 0
+pop local 0
+push local 0
+call MysteryHouse.run 1
+pop temp 0
+push local 0
+call MysteryHouse.dispose 1
+pop temp 0
+push constant 0
+return

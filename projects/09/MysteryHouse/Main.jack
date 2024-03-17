@@ -1,0 +1,15 @@
+/**
+ * Main class of the MysteryHouse game.
+ */
+class Main {
+    /** Initializes a MysteryHouse game and starts running it. */
+    function void main() {
+        var MysteryHouse game;
+
+        let game = MysteryHouse.new();
+        do game.run();
+        do game.dispose();
+
+        return;
+    }
+}

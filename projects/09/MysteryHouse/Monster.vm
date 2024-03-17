@@ -1,0 +1,91 @@
+function Monster.new 0
+push constant 7
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push argument 2
+pop this 2
+push argument 3
+pop this 3
+push argument 4
+pop this 4
+push constant 0
+not
+pop this 5
+push argument 5
+pop this 6
+push pointer 0
+return
+function Monster.dispose 0
+push argument 0
+pop pointer 0
+push this 1
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+call String.dispose 1
+pop temp 0
+label IF_FALSE0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Monster.name 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Monster.id 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Monster.strength 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Monster.score 0
+push argument 0
+pop pointer 0
+push this 3
+return
+function Monster.isAlive 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function Monster.weak 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Monster.aoran 0
+push argument 0
+pop pointer 0
+push this 6
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+call Const.MSG_GRAMMAR_A 0
+return
+goto IF_END0
+label IF_FALSE0
+call Const.MSG_GRAMMAR_AN 0
+return
+label IF_END0
+function Monster.setAlive 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 5
+push constant 0
+return

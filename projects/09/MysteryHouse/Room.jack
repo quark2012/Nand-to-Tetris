@@ -1,0 +1,159 @@
+/**
+ * Implements the class for each individual room in the house.
+ */
+class Room {
+    field String name; // name
+    field String description; // description
+    field Monster monster; // monster in room
+    field Item item; // item in room
+    field int exits; // available exits
+    field int locks; // locked exits
+    field int doors; // doors
+    field int roomX, roomY; // coordinates of room
+    field boolean fog; // fog of war
+
+    /** Constructs a new room. */
+    constructor Room new(int aRoomX, int aRoomY, String aName, int aDesc, int aExits, int aLocks) {
+        let roomX = aRoomX;
+        let roomY = aRoomY;
+        let name = aName;
+        let description = aDesc;
+        let exits = aExits;
+        let locks = aLocks;
+        let doors = aLocks;
+        let fog = true;
+
+        let monster = null;
+        let item = null;
+
+        return this;
+    }
+
+    /** Disposes this object. */
+    method void dispose() {
+        if (~(name = null)) {
+            do name.dispose();
+        }
+        if (~(description = null)) {
+            do description.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Returns name. */
+    method String name() {
+        return name;
+    }
+
+    /** Returns description. */
+    method String description() {
+        return description;
+    }
+
+    /** Returns exits. */
+    method int exits() {
+        return exits;
+    }
+
+    /** Returns locks. */
+    method int locks() {
+        return locks;
+    }
+
+    /** Returns monster. */
+    method Monster monster() {
+        return monster;
+    }
+
+    /** Returns item. */
+    method Item item() {
+        return item;
+    }
+
+    /** Returns room X. */
+    method int roomX() {
+        return roomX;
+    }
+
+    /** Returns room Y. */
+    method int roomY() {
+        return roomY;
+    }
+
+    /** Returns fog. */
+    method boolean fog() {
+        return fog;
+    }
+
+    /** Sets fog. */
+    method void setFog(boolean aFog) {
+        let fog = aFog;
+        return;
+    }
+
+    /** Sets monster. */
+    method void setMonster(Monster aMonster) {
+        let monster = aMonster;
+        return;
+    }
+
+    /** Sets item. */
+    method void setItem(Item aItem) {
+        let item = aItem;
+        return;
+    }
+ 
+    /** Checks if can exit in that direction. */
+    method boolean canExit(int direction) {
+        return (exits & direction) = direction;
+    }
+
+    /** Checks if it is locked in that direction. */
+    method boolean isLocked(int direction) {
+        return (locks & direction) = direction;
+    }
+
+    /** Checks if there is a door in that direction. */
+    method boolean hasDoor(int direction) {
+        return (doors & direction) = direction;
+    }
+
+    /** Searches room for hidden item. */
+    method void search() {
+        if (~(item = null)) {
+            if (item.isHidden()) {
+                do item.reveal();
+            }
+        }
+        return;
+    }
+
+    /** Unlocks lock in room. */
+    method void unlock() {
+        let locks = 0;
+        return;
+    }
+ 
+
+    /** Sets up monster in room. */
+    function void setMonsterInRoom(Array rooms, int x, int y, Monster monster) {
+        var Array arr;
+        var Room room;
+        let arr = rooms[x];
+        let room = arr[y];
+        do room.setMonster(monster);
+        return;
+    }
+
+    /** Sets up item in room. */
+    function void setItemInRoom(Array rooms, int x, int y, Item item) {
+        var Array arr;
+        var Room room;
+        let arr = rooms[x];
+        let room = arr[y];
+        do room.setItem(item);
+        return;
+    }
+
+}

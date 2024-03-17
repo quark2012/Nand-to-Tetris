@@ -1,0 +1,470 @@
+/**
+ * Implements the Mystery House game.
+ * You are trapped inside a strange house.
+ * You need to find the items to help you escape the house.
+ * Controls are shown on the screen.
+ */
+class MysteryHouse {
+    field int turnCounter; // turn counter
+    field boolean exit; // exit flag
+    field int randomCounter; // random counter
+    field String flash; // message to be shown once
+
+    field Array rooms; // rooms
+    field Array monsters; // monsters
+    field Array items; // items
+    field Player player; // player
+
+    /** Constructs a new mystery house game. */
+    constructor MysteryHouse new() {
+        let turnCounter = 0;
+        let exit = false;
+        let randomCounter = 0;
+        let flash = null;
+
+        do initRooms();
+        do initItems();
+        do initMonsters();
+
+        // name, strength
+        let player = Player.new("Hero", 10);
+     
+        return this;
+    }
+
+    /** Disposes this object. */
+    method void dispose() {
+        var int i, j, iMax, jMax;
+        var Array arr;
+        var Room room;
+        var Monster monster;
+        var Item item;
+
+        do player.dispose();
+
+        // dispose items
+        let i = 0;
+        let iMax = Const.ITEMS_SIZE();
+        while (i < iMax) {
+            let item = items[i];
+            if (~(item = null)) {
+                do item.dispose();
+            }
+            let i = i + 1;
+        }
+        do items.dispose();
+
+        // dispose monsters
+        let i = 0;
+        let iMax = Const.MONSTERS_SIZE();
+        while (i < iMax) {
+            let monster = monsters[i];
+            if (~(monster = null)) {
+                do monster.dispose();
+            }
+            let i = i + 1;
+        }
+        do monsters.dispose();
+
+        // dispose rooms
+        let i = 0;
+        let iMax = Const.HOUSE_SIZE();
+        while (i < iMax) {
+            let arr = rooms[i];
+            while (j < jMax) {
+                let room = arr[j];
+                if (~(room = null)) {
+                    do room.dispose();
+                }
+                let j = j + 1;
+            }
+
+            do arr.dispose();
+            let i = i + 1;
+        }
+        do rooms.dispose();
+
+        if (~(flash = null)) {
+            do flash.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Sets up rooms in the mystery mansion. */
+    method void initRooms() {
+        //  +--------+--------+--------+--------+--------+
+        //  |  Pick  |                 #                 |
+        //  | (0, 0) | (0, 1)   (0, 2) # (0, 3)   (0, 4) |
+        //  |        |                 #                 |
+        //  |-|    |-+                 +--------+        |
+        //  |                   Sword           |Gold Key|
+        //  | (1, 0)   (1, 1)   (1, 2)   (1, 3) | (1, 4) |
+        //  |                  Vampire          ||
+        //  |        +--------+        +--------+--------+
+        //  |                 |                          |
+        //  | (2, 0)   (2, 1) | (2, 2)   (2, 3)   (2, 4) |
+        //  |           Ogre  |                          |
+        //  |        +--------+        +--------+-|    |-|
+        //  |        |        |        |        |  Note  |
+        //  | (3, 0) | (3, 1) | (3, 2) | (3, 3) | (3, 4) |
+        //  |        |        |        |        |        |
+        //  |-|    |-+-|    |-+-|    |-+-|    |-+-|    |-|
+        //  |                                    Crucifix|
+        //  | (4, 0)   (4, 1)   (4, 2)   (4, 3)   (4, 4) |
+        //  |                                       Orc  |
+        //  +--------+--------+-|####|-+--------+--------+
+
+        var int i, j, iMax, jMax;
+        var Array arr;
+        var Room room;
+        var int HOUSE_SIZE;
+        var int NORTH, SOUTH, EAST, WEST;
+
+        let HOUSE_SIZE = Const.HOUSE_SIZE();
+        let NORTH = Const.NORTH();
+        let SOUTH = Const.SOUTH();
+        let EAST = Const.EAST();
+        let WEST = Const.WEST();
+
+        let rooms = Array.new(HOUSE_SIZE);
+        let i = 0;
+        let iMax = HOUSE_SIZE;
+        while (i < iMax) {
+            let rooms[i] = Array.new(HOUSE_SIZE);
+            let arr = rooms[i];
+            while (j < jMax) {
+                let arr[j] = null;
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        // name, description, exits, locks
+        let arr = rooms[0];
+        let arr[0] = Room.new(0, 0, "Store Room", "Rubbish is littered all over the floor", SOUTH, 0);
+        let arr[1] = Room.new(0, 1, "Main Hall", "Chandeliers on the roof glow brightly", EAST|SOUTH, 0);
+        let arr[2] = Room.new(0, 2, "Main Hall", "Chandeliers on the roof glow brightly", EAST|SOUTH|WEST, EAST);
+        let arr[3] = Room.new(0, 3, "Master Bedroom", "Cobwebs cover all over the room", EAST|WEST, 0);
+        let arr[4] = Room.new(0, 4, "Master Bedroom", "Someone seems to have slept in the bed recently", SOUTH|WEST, 0);
+
+        let arr = rooms[1];
+        let arr[0] = Room.new(1, 0, "Passageway", "Your voice echoes down the passage.", NORTH|EAST|SOUTH, 0);
+        let arr[1] = Room.new(1, 1, "Main Hall", "Chandeliers on the roof glow brightly.", NORTH|EAST|WEST, 0);
+        let arr[2] = Room.new(1, 2, "Main Hall", "Chandeliers on the roof glow brightly.", NORTH|EAST|SOUTH|WEST, 0);
+        let arr[3] = Room.new(1, 3, "Alcove", "You noticed a strange painting hanging on the wall.", WEST, 0);
+        let arr[4] = Room.new(1, 4, "Master Bedroom", "There are some inscriptions on the wall.", NORTH, 0);
+
+        let arr = rooms[2];
+        let arr[0] = Room.new(2, 0, "Passageway", "A foul stench comes from the east.", NORTH|EAST|SOUTH, 0);
+        let arr[1] = Room.new(2, 1, "Kitchen", "The stench of rotten food puts you off.", WEST, 0);
+        let arr[2] = Room.new(2, 2, "Main Hall Entrance", "A once majestic hall lies to the north.", NORTH|EAST|SOUTH, 0);
+        let arr[3] = Room.new(2, 3, "Passageway", "Your voice echoes down the passage.", EAST|WEST, 0);
+        let arr[4] = Room.new(2, 4, "Passageway", "It is really very dark in here.", SOUTH|WEST, 0);
+
+        let arr = rooms[3];
+        let arr[0] = Room.new(3, 0, "Passageway", "Your voice echoes down the passage.", NORTH|SOUTH, 0);
+        let arr[1] = Room.new(3, 1, "Bedroom", "This seems like a servants' quarters once.", SOUTH, 0);
+        let arr[2] = Room.new(3, 2, "Large Corridor", "The place looks dim with few lightings.", NORTH|SOUTH, 0);
+        let arr[3] = Room.new(3, 3, "Study", "Many old and torn books are in this room.", SOUTH, 0);
+        let arr[4] = Room.new(3, 4, "Music Room", "An old piano with nothing interesting.", NORTH|SOUTH, 0);
+
+        let arr = rooms[4];
+        let arr[0] = Room.new(4, 0, "Guard Post", "Broken pieces of metal lie on the floor.", NORTH|EAST, 0);
+        let arr[1] = Room.new(4, 1, "Passageway", "Your voice echoes down the passage.", NORTH|EAST|WEST, 0);
+        let arr[2] = Room.new(4, 2, "Main Entrance", "The locked door prevents you from escaping.", NORTH|EAST|SOUTH|WEST, SOUTH);
+        let arr[3] = Room.new(4, 3, "Passageway", "Your voice echoes down the passage.", NORTH|EAST|WEST, 0);
+        let arr[4] = Room.new(4, 4, "Chapel", "An altar seats quietly in a corner.", NORTH|WEST, 0);
+
+        return;
+    }
+
+    /** Sets up monsters in the mystery mansion. */
+    method void initMonsters() {
+        let monsters = Array.new(Const.MONSTERS_SIZE());
+
+        // name, strength, score points, weak, aoran
+        let monsters[0] = Monster.new(Const.CREATURE_VAMPIRE(), "Vampire", 14, 15, false, true);
+        do Room.setMonsterInRoom(rooms, 1, 2, monsters[0]);
+
+        let monsters[1] = Monster.new(Const.CREATURE_OGRE(), "Ogre", 11, 10, true, false);
+        do Room.setMonsterInRoom(rooms, 2, 1, monsters[1]);
+
+        let monsters[2] = Monster.new(Const.CREATURE_ORC(), "Orc", 8, 5, true, false);
+        do Room.setMonsterInRoom(rooms, 4, 4, monsters[2]);
+    
+        return;
+    }
+
+    /** Sets up items in the mystery mansion. */
+    method void initItems() {
+        let items = Array.new(Const.ITEMS_SIZE());
+
+        // "                        "
+        // name, description, use description, hidden
+        let items[0] = Item.new(Const.ITEM_NOTE(), "Note", "You see a yellow, tattered piece of inscription.", "The Lock Pick can be found in the Store Room.", false, "You see a yellow, ", "tattered piece of ", "inscription.", "The Lock Pick can be", "found in the Store Room.");
+        do Room.setItemInRoom(rooms, 3, 4, items[0]);
+
+        // name, description, use description, hidden, strength bonus, against
+        let items[1] = Item.newWeapon(Const.ITEM_SWORD(), "Sword", "You shiver at the touch of this mighty piece of steel.", "This is effective against monsters.", true, 3, true, "You shiver at the touch", "of this mighty piece of", "steel.", "This is effective", "against monsters.");
+        do Room.setItemInRoom(rooms, 1, 2, items[1]);
+
+        let items[2] = Item.newWeapon(Const.ITEM_CRUCIFIX(), "Crucifix", "It is a powerful holy artifact.", "This is effective against undeads.", true, 5, false, "It is a powerful holy", "artifact.", "", "This is effective", "against undeads.");
+        do Room.setItemInRoom(rooms, 4, 4, items[2]);
+
+        // name, description, hidden, room x, room y
+        let items[3] = Item.newKey(Const.ITEM_GOLD_KEY(), "Big Gold Key", "This golden key unlocks the Main Door.", false, 4, 2);
+        do Room.setItemInRoom(rooms, 1, 4, items[3]);
+
+        let items[4] = Item.newKey(Const.ITEM_LOCK_PICK(), "Lock Pick", "It can be used to pick most doors.", true, 0, 2);
+        do Room.setItemInRoom(rooms, 0, 0, items[4]);
+
+        return;
+    }
+
+    /** Gets room that player is in. */
+    method Room playerRoom() {
+        return getRoom(player.x(), player.y());
+    }
+
+    /** Gets room given r and c. */
+    method Room getRoom(int r, int c) {
+        var int HOUSE_SIZE;
+        var Array arr;
+        var Room room;
+
+        let HOUSE_SIZE = Const.HOUSE_SIZE();
+        if ((r < 0) | (r > (HOUSE_SIZE - 1))) {
+            return null;
+        }
+        if ((c < 0) | (c > (HOUSE_SIZE - 1))) {
+            return null;
+        }
+        let arr = rooms[r];
+        let room = arr[c];
+        return room;
+    }
+
+    /** Removes fog of war. */
+    method void removeFog() {
+        var int r, c;
+
+        let r = player.x();
+        let c = player.y();
+        do removeFogFromRoom(playerRoom(), 0);
+        // north of player
+        do removeFogFromRoom(getRoom(r - 1, c), Const.NORTH());
+        // south of player
+        do removeFogFromRoom(getRoom(r + 1, c), Const.SOUTH());
+        // west of player
+        do removeFogFromRoom(getRoom(r, c - 1), Const.WEST());
+        // east of player
+        do removeFogFromRoom(getRoom(r, c + 1), Const.EAST());
+        return;
+    }
+
+    /** Removes fog of war. */
+    method void removeFogFromRoom(Room room, int direction) {
+        var Room playerRoom;
+
+        let playerRoom = playerRoom();
+        if (room = null) {
+            return;
+        }
+        // if fog has been disabled, skip
+        if (~room.fog()) {
+            return;
+        }
+        if (direction = 0) {
+            do room.setFog(false);
+            return;
+        }
+        if (playerRoom.canExit(direction) & (~playerRoom.isLocked(direction))) {
+            do room.setFog(false);
+        }
+        return;
+    }
+
+    /** Draws the screen. */
+    method void drawScreen(boolean refresh) {
+        if (~refresh) {
+            do Screen.clearScreen();
+        }
+        do drawMainSection(refresh);
+        do drawRightSection(refresh);
+        do drawBottomSection(refresh);
+        return;
+    }
+
+    /** Draws the main section. */
+    method void drawMainSection(boolean refresh) {
+        do drawMap();
+        return;
+    }
+
+    /** Draws the right section. */
+    method void drawRightSection(boolean refresh) {
+        if (refresh) {
+            do Display.clearScreen(0, 40, 10, Const.BLANK_LINE24());
+        }
+        do Display.statsSection(0, 40, player, turnCounter, randomCounter);
+        return;
+    }
+
+    /** Draws the bottom section. */
+    method void drawBottomSection(boolean refresh) {
+        if (refresh) {
+            do Display.clearScreen(14, 0, Const.SCREEN_HEIGHT() - 2, Const.BLANK_LINE64());
+        }
+        do Display.roomSection(14, 0, playerRoom(), flash);
+        if (~refresh) {
+            do Display.helpSection(21, 0);
+        }
+        return;
+    }
+
+    /** Draws the 3x3 map. */
+    method void drawMap() {
+        var int mapR, mapC, mapRInc, mapCInc, roomR, roomC;
+        var Room room;
+
+        let mapRInc = Const.MAP_ROOM_HEIGHT();
+        let mapCInc = Const.MAP_ROOM_WIDTH();
+        let roomR = player.x();
+        let roomC = player.y();
+        let mapR = 0;
+        let mapC = 2;
+
+        // 1st row
+        let room = getRoom(roomR - 1, roomC - 1);
+        do Sprite.drawRoom(room, false, mapR, mapC, 0, roomR - 1, roomC - 1);
+        let room = getRoom(roomR - 1, roomC);
+        do Sprite.drawRoom(room, false, mapR, mapC + mapCInc, 0, roomR - 1, roomC);
+        let room = getRoom(roomR - 1, roomC + 1);
+        do Sprite.drawRoom(room, false, mapR, mapC + (mapCInc * 2), 0, roomR - 1, roomC + 1);
+
+        // 2nd row
+        let room = getRoom(roomR, roomC - 1);
+        do Sprite.drawRoom(room, false, mapR + mapRInc, mapC, 0, roomR, roomC - 1);
+        let room = getRoom(roomR, roomC);
+        do Sprite.drawRoom(room, true, mapR + mapRInc, mapC + mapCInc, 0, roomR, roomC);
+        let room = getRoom(roomR, roomC + 1);
+        do Sprite.drawRoom(room, false, mapR + mapRInc, mapC + (mapCInc * 2), 0, roomR, roomC + 1);
+
+        // 3rd row
+        let room = getRoom(roomR + 1, roomC - 1);
+        do Sprite.drawRoom(room, false, mapR + (mapRInc * 2), mapC, 0, roomR + 1, roomC - 1);
+        let room = getRoom(roomR + 1, roomC);
+        do Sprite.drawRoom(room, false, mapR + (mapRInc * 2), mapC + mapCInc, 0, roomR + 1, roomC);
+        let room = getRoom(roomR + 1, roomC + 1);
+        do Sprite.drawRoom(room, false, mapR + (mapRInc * 2), mapC + (mapCInc * 2), 0, roomR + 1, roomC + 1);
+
+        return;
+    }
+
+    /** Runs the game: handles the user's inputs accordingly */
+    method void run() {
+        var char key; // the key currently pressed by the user
+        var boolean exit;
+        var Room room;
+        var boolean changed, moved;
+
+        do Const.init();
+
+        do removeFog();
+        let moved = false;
+
+        let turnCounter = turnCounter + 1;
+        do drawScreen(false);
+        let changed = false;
+
+        let exit = false;
+        while (~exit) {
+            if (moved) {
+                do removeFog();
+                let moved = false;
+            }
+            if (changed) {
+                let turnCounter = turnCounter + 1;
+                do drawScreen(true);
+                let changed = false;    
+            }
+
+            // waits for a key to be pressed
+            while ((key = 0) & (~exit)) {
+                let key = Keyboard.keyPressed();
+                let randomCounter = randomCounter + 1;
+                do Sys.wait(50);
+            }
+
+            let room = playerRoom();
+
+            if (key = 65) { // a : attack the monster
+                let flash = player.attack(room);
+                let changed = true;
+            }
+            if (key = 68) { // d : drop the item
+                let flash = player.drop();
+                let changed = true;
+            }
+            if (key = 71) { // g : get the item
+                let flash = player.get(room);
+                let changed = true;
+            }
+            if (key = 81) { // q : quit the game
+                let exit = true;
+            }
+            if (key = 83) { // s: look for hidden items
+                do room.search();
+                let changed = true;
+            }
+            if (key = 85) { // u: use the item
+                do player.use(room);
+                let changed = true;
+                let moved = true;
+            }
+            if (key = 130) { // left : move west
+                let flash = player.move(room, Const.WEST());
+                let changed = true;
+                let moved = true;
+            }
+            if (key = 131) { // up : move north
+                let flash = player.move(room, Const.NORTH());
+                let changed = true;
+                let moved = true;
+            }
+            if (key = 132) { // right : move east
+                let flash = player.move(room, Const.EAST());
+                let changed = true;
+                let moved = true;
+            }
+            if (key = 133) { // down : move south
+                let flash = player.move(room, Const.SOUTH());
+                let changed = true;
+                let moved = true;
+            }
+
+            // waits for the key to be released
+            while ((~(key = 0)) & (~exit)) {
+                let key = Keyboard.keyPressed();
+                let randomCounter = randomCounter + 1;
+                // do moveSquare();
+                do Sys.wait(50);
+            }
+
+            // Checking for victory condition
+            if (player.isAlive()) {
+                if (player.win()) {
+                    do Display.winMessage(player, turnCounter);
+                    let exit = true;
+                }
+            } else {
+                do Display.loseMessage(player, turnCounter);
+                let exit = true;
+            }
+        } // while
+
+        return;
+    }
+
+}

@@ -1,0 +1,178 @@
+/**
+ * Implements the display drawing functions.
+ */
+class Display {
+    /** Clears parts of the screen. */
+    function void clearScreen(int i, int j, int iMax, String line) {
+        while (i < iMax) {
+            do Output.moveCursor(i, j);
+            do Output.printString(line);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** Displays the winning message. */
+    function void winMessage(Player player, int turnCounter) {
+        do Screen.clearScreen();
+        do Output.moveCursor(5, 0);
+        do Output.println();
+        do Output.printString(Const.MSG_WIN());
+        do Output.println();
+        do Display.turnsAndMoves(player, turnCounter);
+        do Output.printString(Const.MSG_WIN_SCORE());
+        do Output.printInt(player.score() - player.moves());
+        do Output.printChar(Const.SYMBOL_PERIOD());
+        do Output.println();
+        return;
+    }
+
+    /** Displays the losing message. */
+    function void loseMessage(Player player, int turnCounter) {
+        do Screen.clearScreen();
+        do Output.moveCursor(5, 0);
+        do Output.println();
+        do Output.printString(Const.MSG_LOSE());
+        do Output.println();
+        do Display.turnsAndMoves(player, turnCounter);
+        return;
+    }
+
+    /** Displays number of turns and moves taken. */
+    function void turnsAndMoves(Player player, int turnCounter) {
+        do Output.printString(Const.MSG_TURNS_MOVES1());
+        do Output.printInt(turnCounter);
+        do Output.printString(Const.MSG_TURNS_MOVES2());
+        do Output.printInt(player.moves());
+        do Output.printString(Const.MSG_TURNS_MOVES3());
+        do Output.println();
+        return;
+    }
+
+    /** Draws the help section. */
+    function void helpSection(int i, int j) {
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_HELP1());
+        let i = i + 1;
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_HELP2());
+        return;
+    }
+
+    /** Draws the room information section. */
+    function void roomSection(int i, int j, Room room, String flash) {
+        var Monster monster;
+        var Item item;
+
+        let monster = room.monster();
+        let item = room.item();
+
+        // display which room the player is in
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_ROOM_ROOM_START());
+        do Output.printString(room.name());
+        do Output.printChar(Const.SYMBOL_PERIOD());
+        let i = i + 1;
+        do Output.moveCursor(i, j);
+        do Output.printString(room.description());
+
+        // display the monster in the room if any
+        if (~(monster = null)) {
+            let i = i + 1;
+            do Output.moveCursor(i, j);
+            do Output.printString(Const.MSG_SECTION_ROOM_MONSTER_START());
+            if (monster.isAlive()) {
+                do Output.printString(monster.aoran());
+                do Output.printChar(Const.SYMBOL_SPACE());
+            } else {
+                do Output.printString(Const.MSG_SECTION_ROOM_MONSTER_DEAD());
+            }
+            do Output.printString(monster.name());
+            do Output.printString(Const.MSG_SECTION_ROOM_MONSTER_END());
+        }
+
+        // display the item in the room if any
+        if (~(item = null)) {
+            if (~(item.isHidden())) {
+                let i = i + 1;
+                do Output.moveCursor(i, j);
+                do Output.printString(Const.MSG_SECTION_ROOM_ITEM_START());
+                do Output.printString(item.name());
+                do Output.printString(Const.MSG_SECTION_ROOM_ITEM_END());
+            }
+        }
+
+        // display message which are shown once
+        let i = i + 2;
+        do Output.moveCursor(i, j);
+        if (~(flash = null)) {
+            do Output.printString(flash);
+            let flash = null;
+        }
+
+        return;
+    }
+
+    /** Draws the stats section. */
+    function void statsSection(int i, int j, Player player, int turnCounter, int randomCounter) {
+        // display the number of turns
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_STATS_TURN());
+        do Output.printInt(turnCounter);
+        // do Output.printChar(Const.SYMBOL_SPACE());
+        // do Output.printInt(randomCounter);
+
+        // display the current score
+        let i = i + 1;
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_STATS_SCORE());
+        do Output.printInt(player.score() - player.moves());
+
+        // display the number of moves made so far
+        let i = i + 1;
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_STATS_MOVES());
+        do Output.printInt(player.moves());
+
+        let i = i + 2;
+        do Display.inventorySection(i, j, player);
+
+        return;
+    }
+
+    /** Draws the inventory section. */
+    function void inventorySection(int i, int j, Player player) {
+        var Item item;
+
+        do Output.moveCursor(i, j);
+        do Output.printString(Const.MSG_SECTION_INVENTORY_CARRYING());
+        let item = player.item();
+        if (item = null) {
+            do Output.printString(Const.MSG_SECTION_INVENTORY_NOTHING());
+        } else {
+            do Output.printString(item.name());
+
+            let i = i + 1;
+            do Output.moveCursor(i, j);
+            do Output.printString(item.desc1());
+            let i = i + 1;
+            do Output.moveCursor(i, j);
+            do Output.printString(item.desc2());
+            let i = i + 1;
+            do Output.moveCursor(i, j);
+            do Output.printString(item.desc3());
+
+            if (item.useEnabled()) {
+                let i = i + 1;
+                do Output.moveCursor(i, j);
+                do Output.printString(item.useDesc1());
+                let i = i + 1;
+                do Output.moveCursor(i, j);
+                do Output.printString(item.useDesc2());
+            }
+        }
+
+        return;
+    }
+
+}

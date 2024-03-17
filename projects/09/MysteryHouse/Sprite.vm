@@ -1,0 +1,2989 @@
+function Sprite.locate 0
+push argument 0
+call Const.SCREEN_WIDTH_PIXELS 0
+call Math.multiply 2
+push argument 1
+add
+push argument 2
+add
+return
+function Sprite.drawRoom 3
+push argument 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 2
+push argument 3
+push argument 4
+push argument 5
+push argument 6
+call Const.ROOM_SPECIAL_OUTSIDE 0
+call Sprite.drawRoomSpecial 6
+pop temp 0
+push constant 0
+return
+goto IF_END0
+label IF_FALSE0
+push argument 0
+call Room.fog 1
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 2
+push argument 3
+push argument 4
+push argument 5
+push argument 6
+call Const.ROOM_SPECIAL_FOG 0
+call Sprite.drawRoomSpecial 6
+pop temp 0
+push constant 0
+return
+label IF_FALSE1
+push argument 2
+push argument 3
+push argument 4
+call Sprite.locate 3
+pop local 0
+push local 0
+push argument 0
+call Sprite.drawCornerNW 2
+pop temp 0
+push argument 2
+push argument 3
+push argument 4
+push argument 0
+call Const.NORTH 0
+call Sprite.drawRoomBorder 5
+pop temp 0
+push argument 2
+push argument 3
+push constant 4
+add
+push argument 4
+call Sprite.locate 3
+pop local 0
+push local 0
+push argument 0
+call Sprite.drawCornerNE 2
+pop temp 0
+push argument 2
+push argument 3
+push argument 4
+push argument 0
+call Const.WEST 0
+call Sprite.drawRoomBorder 5
+pop temp 0
+push argument 2
+push constant 1
+add
+push argument 3
+push constant 1
+add
+push argument 4
+call Sprite.locate 3
+pop local 0
+push argument 0
+call Room.monster 1
+push local 0
+call Sprite.drawMonster 2
+pop temp 0
+push argument 2
+push constant 1
+add
+push argument 3
+push constant 2
+add
+push argument 4
+call Sprite.locate 3
+pop local 0
+push argument 1
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 0
+call Sprite.drawPlayer 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push local 0
+call Sprite.drawWhite 1
+pop temp 0
+label IF_END2
+push argument 2
+push constant 1
+add
+push argument 3
+push constant 3
+add
+push argument 4
+call Sprite.locate 3
+pop local 0
+push argument 0
+call Room.item 1
+push local 0
+call Sprite.drawItem 2
+pop temp 0
+push argument 2
+push argument 3
+push argument 4
+push argument 0
+call Const.EAST 0
+call Sprite.drawRoomBorder 5
+pop temp 0
+push argument 2
+push constant 2
+add
+push argument 3
+push argument 4
+call Sprite.locate 3
+pop local 0
+push local 0
+push argument 0
+call Sprite.drawCornerSW 2
+pop temp 0
+push argument 2
+push argument 3
+push argument 4
+push argument 0
+call Const.SOUTH 0
+call Sprite.drawRoomBorder 5
+pop temp 0
+push argument 2
+push constant 2
+add
+push argument 3
+push constant 4
+add
+push argument 4
+call Sprite.locate 3
+pop local 0
+push local 0
+push argument 0
+call Sprite.drawCornerSE 2
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Sprite.drawRoomSpecial 3
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.MAP_ROOM_HEIGHT 0
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+call Const.MAP_ROOM_WIDTH 0
+lt
+not
+if-goto WHILE_END1
+push argument 0
+push local 1
+add
+push argument 1
+push local 2
+add
+push argument 2
+call Sprite.locate 3
+pop local 0
+push argument 5
+call Const.ROOM_SPECIAL_OUTSIDE 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+push argument 3
+push argument 4
+push local 1
+push local 2
+call Sprite.drawRoomSpecialOutside 5
+pop temp 0
+label IF_FALSE0
+push argument 5
+call Const.ROOM_SPECIAL_FOG 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
+call Sprite.drawFogOfWar 1
+pop temp 0
+label IF_FALSE1
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawRoomSpecialOutside 0
+push argument 1
+push constant 0
+lt
+push argument 3
+call Const.MAP_ROOM_HEIGHT 0
+push constant 1
+sub
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 2
+push constant 0
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 4
+call Const.MAP_ROOM_WIDTH 0
+push constant 1
+sub
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push argument 0
+call Sprite.drawOutside 1
+pop temp 0
+label IF_END2
+push constant 0
+return
+label IF_FALSE1
+push argument 2
+call Const.HOUSE_SIZE 0
+push constant 1
+sub
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push argument 4
+push constant 0
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+goto IF_END4
+label IF_FALSE4
+push argument 0
+call Sprite.drawOutside 1
+pop temp 0
+label IF_END4
+push constant 0
+return
+label IF_FALSE3
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push argument 1
+call Const.HOUSE_SIZE 0
+push constant 1
+sub
+gt
+push argument 3
+push constant 0
+eq
+and
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push argument 2
+push constant 0
+lt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push argument 4
+call Const.MAP_ROOM_WIDTH 0
+push constant 1
+sub
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+goto IF_END7
+label IF_FALSE7
+push argument 0
+call Sprite.drawOutside 1
+pop temp 0
+label IF_END7
+push constant 0
+return
+label IF_FALSE6
+push argument 2
+call Const.HOUSE_SIZE 0
+push constant 1
+sub
+gt
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push argument 4
+push constant 0
+eq
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+goto IF_END9
+label IF_FALSE9
+push argument 0
+call Sprite.drawOutside 1
+pop temp 0
+label IF_END9
+push constant 0
+return
+label IF_FALSE8
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE5
+push argument 1
+push constant 1
+neg
+gt
+push argument 1
+call Const.HOUSE_SIZE 0
+lt
+and
+push argument 2
+push constant 0
+lt
+and
+push argument 4
+call Const.MAP_ROOM_WIDTH 0
+push constant 1
+sub
+eq
+and
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE10
+push argument 1
+push constant 1
+neg
+gt
+push argument 1
+call Const.HOUSE_SIZE 0
+lt
+and
+push argument 2
+call Const.HOUSE_SIZE 0
+push constant 1
+sub
+gt
+and
+push argument 4
+push constant 0
+eq
+and
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
+push argument 0
+call Sprite.drawWhite 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE11
+push argument 0
+call Sprite.drawOutside 1
+pop temp 0
+push constant 0
+return
+function Sprite.drawRoomBorderDir 2
+push argument 3
+call Const.WEST 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
+push constant 1
+add
+push argument 1
+push argument 2
+call Sprite.locate 3
+pop local 1
+push argument 4
+call Const.ROOM_BORDER_WALL 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 1
+call Sprite.drawWallW 1
+pop temp 0
+label IF_FALSE1
+push argument 4
+call Const.ROOM_BORDER_DOOR 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 1
+call Sprite.drawDoorW 1
+pop temp 0
+label IF_FALSE2
+push argument 4
+call Const.ROOM_BORDER_OPEN 0
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_FALSE3
+push constant 0
+return
+label IF_FALSE0
+push argument 3
+call Const.EAST 0
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push argument 0
+push constant 1
+add
+push argument 1
+push constant 4
+add
+push argument 2
+call Sprite.locate 3
+pop local 1
+push argument 4
+call Const.ROOM_BORDER_WALL 0
+eq
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 1
+call Sprite.drawWallE 1
+pop temp 0
+label IF_FALSE5
+push argument 4
+call Const.ROOM_BORDER_DOOR 0
+eq
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push local 1
+call Sprite.drawDoorE 1
+pop temp 0
+label IF_FALSE6
+push argument 4
+call Const.ROOM_BORDER_OPEN 0
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push local 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_FALSE7
+push constant 0
+return
+label IF_FALSE4
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 3
+lt
+not
+if-goto WHILE_END0
+push argument 3
+call Const.NORTH 0
+eq
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push argument 0
+push argument 1
+push constant 1
+add
+push local 0
+add
+push argument 2
+call Sprite.locate 3
+pop local 1
+push argument 4
+call Const.ROOM_BORDER_WALL 0
+eq
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push local 1
+call Sprite.drawWallN 1
+pop temp 0
+label IF_FALSE9
+push argument 4
+call Const.ROOM_BORDER_DOOR 0
+eq
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push local 1
+call Sprite.drawDoorN 1
+pop temp 0
+label IF_FALSE10
+push argument 4
+call Const.ROOM_BORDER_OPEN 0
+eq
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
+push local 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_FALSE11
+label IF_FALSE8
+push argument 3
+call Const.SOUTH 0
+eq
+if-goto IF_TRUE12
+goto IF_FALSE12
+label IF_TRUE12
+push argument 0
+push constant 2
+add
+push argument 1
+push constant 1
+add
+push local 0
+add
+push argument 2
+call Sprite.locate 3
+pop local 1
+push argument 4
+call Const.ROOM_BORDER_WALL 0
+eq
+if-goto IF_TRUE13
+goto IF_FALSE13
+label IF_TRUE13
+push local 1
+call Sprite.drawWallS 1
+pop temp 0
+label IF_FALSE13
+push argument 4
+call Const.ROOM_BORDER_DOOR 0
+eq
+if-goto IF_TRUE14
+goto IF_FALSE14
+label IF_TRUE14
+push local 1
+call Sprite.drawDoorS 1
+pop temp 0
+label IF_FALSE14
+push argument 4
+call Const.ROOM_BORDER_OPEN 0
+eq
+if-goto IF_TRUE15
+goto IF_FALSE15
+label IF_TRUE15
+push local 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_FALSE15
+label IF_FALSE12
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawRoomBorder 0
+push argument 3
+push argument 4
+call Room.canExit 2
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 3
+push argument 4
+call Room.isLocked 2
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+push argument 1
+push argument 2
+push argument 4
+call Const.ROOM_BORDER_DOOR 0
+call Sprite.drawRoomBorderDir 5
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push argument 0
+push argument 1
+push argument 2
+push argument 4
+call Const.ROOM_BORDER_OPEN 0
+call Sprite.drawRoomBorderDir 5
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 0
+push argument 1
+push argument 2
+push argument 4
+call Const.ROOM_BORDER_WALL 0
+call Sprite.drawRoomBorderDir 5
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Sprite.drawCornerNW 0
+push argument 1
+call Const.NORTH 0
+call Room.canExit 2
+push argument 1
+call Const.NORTH 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+call Const.WEST 0
+call Room.canExit 2
+push argument 1
+call Const.WEST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+call Sprite.drawCornerNWBothOpen 1
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push argument 0
+call Sprite.drawWallW 1
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Const.WEST 0
+call Room.canExit 2
+push argument 1
+call Const.WEST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 0
+call Sprite.drawWallN 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push argument 0
+call Sprite.drawCornerNWBothWalls 1
+pop temp 0
+label IF_END2
+label IF_END0
+push constant 0
+return
+function Sprite.drawCornerNE 0
+push argument 1
+call Const.NORTH 0
+call Room.canExit 2
+push argument 1
+call Const.NORTH 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+call Const.EAST 0
+call Room.canExit 2
+push argument 1
+call Const.EAST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+call Sprite.drawCornerNEBothOpen 1
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push argument 0
+call Sprite.drawWallE 1
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Const.EAST 0
+call Room.canExit 2
+push argument 1
+call Const.EAST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 0
+call Sprite.drawWallN 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push argument 0
+call Sprite.drawCornerNEBothWalls 1
+pop temp 0
+label IF_END2
+label IF_END0
+push constant 0
+return
+function Sprite.drawCornerSW 0
+push argument 1
+call Const.SOUTH 0
+call Room.canExit 2
+push argument 1
+call Const.SOUTH 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+call Const.WEST 0
+call Room.canExit 2
+push argument 1
+call Const.WEST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+call Sprite.drawCornerSWBothOpen 1
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push argument 0
+call Sprite.drawWallW 1
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Const.WEST 0
+call Room.canExit 2
+push argument 1
+call Const.WEST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 0
+call Sprite.drawWallS 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push argument 0
+call Sprite.drawCornerSWBothWalls 1
+pop temp 0
+label IF_END2
+label IF_END0
+push constant 0
+return
+function Sprite.drawCornerSE 0
+push argument 1
+call Const.SOUTH 0
+call Room.canExit 2
+push argument 1
+call Const.SOUTH 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+call Const.EAST 0
+call Room.canExit 2
+push argument 1
+call Const.EAST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+call Sprite.drawCornerSEBothOpen 1
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push argument 0
+call Sprite.drawWallE 1
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Const.EAST 0
+call Room.canExit 2
+push argument 1
+call Const.EAST 0
+call Room.hasDoor 2
+not
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 0
+call Sprite.drawWallS 1
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push argument 0
+call Sprite.drawCornerSEBothWalls 1
+pop temp 0
+label IF_END2
+label IF_END0
+push constant 0
+return
+function Sprite.drawMonster 1
+push argument 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
+call Monster.id 1
+pop local 0
+push local 0
+call Const.CREATURE_VAMPIRE 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 1
+call Sprite.drawVampire 1
+pop temp 0
+label IF_FALSE1
+push local 0
+call Const.CREATURE_OGRE 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 1
+call Sprite.drawOgre 1
+pop temp 0
+label IF_FALSE2
+push local 0
+call Const.CREATURE_ORC 0
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push argument 1
+call Sprite.drawOrc 1
+pop temp 0
+label IF_FALSE3
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Sprite.drawItem 1
+push argument 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
+call Item.isHidden 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 0
+call Item.id 1
+pop local 0
+push local 0
+call Const.ITEM_NOTE 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 1
+call Sprite.drawNote 1
+pop temp 0
+label IF_FALSE2
+push local 0
+call Const.ITEM_SWORD 0
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push argument 1
+call Sprite.drawSword 1
+pop temp 0
+label IF_FALSE3
+push local 0
+call Const.ITEM_CRUCIFIX 0
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push argument 1
+call Sprite.drawCrucifix 1
+pop temp 0
+label IF_FALSE4
+push local 0
+call Const.ITEM_LOCK_PICK 0
+eq
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push argument 1
+call Sprite.drawLockPick 1
+pop temp 0
+label IF_FALSE5
+push local 0
+call Const.ITEM_GOLD_KEY 0
+eq
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push argument 1
+call Sprite.drawGoldKey 1
+pop temp 0
+label IF_FALSE6
+goto IF_END1
+label IF_FALSE1
+push argument 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_END1
+goto IF_END0
+label IF_FALSE0
+push argument 1
+call Sprite.drawWhite 1
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Sprite.drawPattern 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push argument 1
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawBlack 0
+push argument 0
+push constant 1
+neg
+call Sprite.drawPattern 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawWhite 0
+push argument 0
+push constant 0
+call Sprite.drawPattern 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawCornerNWBothWalls 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawCornerNWBothOpen 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawCornerNEBothWalls 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawCornerNEBothOpen 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawCornerSWBothWalls 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawCornerSWBothOpen 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawCornerSEBothWalls 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawCornerSEBothOpen 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawWallN 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawWallS 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawWallW 0
+push argument 0
+push constant 3
+call Sprite.drawPattern 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawWallE 0
+push argument 0
+push constant 16384
+neg
+call Sprite.drawPattern 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawDoorN 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push constant 64
+pop local 1
+label WHILE_EXP0
+push local 1
+call Const.SCREEN_WIDTH_PIXELS 0
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Sprite.drawDoorS 2
+push constant 16384
+push argument 0
+add
+pop local 0
+push constant 0
+pop local 1
+label WHILE_EXP0
+push local 1
+push constant 448
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 1
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 1
+push constant 32
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push local 0
+push constant 448
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawDoorW 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 3
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawDoorE 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 16384
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 32767
+neg
+push constant 1
+sub
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawPlayer 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 448
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 960
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 640
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 960
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 2048
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 5056
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 3024
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 456
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 16
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 960
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 576
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 1632
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawVampire 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 8200
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 25676
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 2082
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 18118
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 31838
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 16388
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 17476
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 8200
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawOgre 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 240
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 504
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 3580
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 7356
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 16028
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 30408
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 28256
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 28416
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 28544
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 26560
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 14288
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 13200
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 3168
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 7792
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawOrc 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 8
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 28
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 56
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 272
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 5008
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 9544
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 4756
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 2080
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 896
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 32
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 3136
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawNote 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 506
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 32762
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 32256
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 496
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 8080
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 6264
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 4072
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 2744
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 4088
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 4064
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 26
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 2042
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 16352
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 14336
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawSword 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 24576
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 12288
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 6144
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 3072
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 1536
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 768
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 388
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 200
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 112
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 32
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 72
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 140
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 6
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawCrucifix 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 2016
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 2016
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 384
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawLockPick 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 240
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 392
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 16324
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 8708
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 3972
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 2564
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 424
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 6128
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 7200
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 32
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 96
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawGoldKey 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 192
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 288
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 288
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 192
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 1008
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 64
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 192
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 1216
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 1728
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 704
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 1728
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawFogOfWar 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 21846
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 21845
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 21846
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 21845
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 21846
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 21845
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 21846
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 21845
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+return
+function Sprite.drawOutside 1
+push constant 16384
+push argument 0
+add
+pop local 0
+push local 0
+push constant 0
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 32
+add
+push constant 3
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 64
+add
+push constant 6
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 96
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 128
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 160
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 192
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 224
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 256
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 288
+add
+push constant 513
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 320
+add
+push constant 1281
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 352
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 384
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 416
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 448
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push local 0
+push constant 480
+add
+push constant 1
+neg
+call Memory.poke 2
+pop temp 0
+push constant 0
+return

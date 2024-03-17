@@ -1,0 +1,80 @@
+/**
+ * Implements the class of bad guys who make life difficult for the player.
+ */
+class Monster {
+    field int id; // id of item
+    field String name; // name
+    field int strength; // strength
+    field int scorePoints; // points awarded for killing this monster
+    field boolean weak; // if true, weak against true, false, weak against false
+    field boolean alive; // alive or dead
+    field boolean aoran; // a or an
+
+    /** Constructs a new monster. */
+    constructor Monster new(int anId, String aName, int aStrength, int aScorePoints, boolean aWeak, boolean aAoran) {
+        let id = anId;
+        let name = aName;
+        let strength = aStrength;
+        let scorePoints = aScorePoints;
+        let weak = aWeak;
+        let alive = true;
+        let aoran = aAoran;
+
+        return this;
+    }
+
+    /** Disposes this object. */
+    method void dispose() {
+        if (~(name = null)) {
+            do name.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Returns name. */
+    method String name() {
+        return name;
+    }
+
+    /** Returns the id. */
+    method int id() {
+        return id;
+    }
+
+    /** Returns strength. */
+    method int strength() {
+        return strength;
+    }
+
+    /** Returns score points. */
+    method int score() {
+        return scorePoints;
+    }
+
+    /** Returns alive. */
+    method boolean isAlive() {
+        return alive;
+    }
+
+    /** Returns weak. */
+    method boolean weak() {
+        return weak;
+    }
+
+    /** Returns a or an. */
+    method String aoran() {
+        if (aoran) {
+            return Const.MSG_GRAMMAR_A();
+        } else {
+            return Const.MSG_GRAMMAR_AN();
+        }
+    }
+
+    /** Sets alive. */
+    method void setAlive(boolean isAlive) {
+        let alive = isAlive;
+        return;
+    }
+
+}

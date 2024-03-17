@@ -1,0 +1,208 @@
+/**
+ * Implements the class of inanimate objects which the player can use in the game.
+ */
+class Item {
+    field int type; // type of item: item, weapon, key
+    field int id; // id of item
+    field String name; // name
+    field String description; // description
+    field String desc1, desc2, desc3; // description for display
+    field String useDescription; // use description
+    field String useDesc1, useDesc2; // use description for display
+    field boolean hidden; // is item hidden?
+    field int strengthBonus; // bonus to strength
+    field boolean against; // if true, effective on true, false, effective on false
+    field int unlockX, unlockY; // unlock room(x, y)
+    field boolean useEnabled; // user has used the item
+
+    /** Constructs a new item. */
+    constructor Item new(int anId, String aName, String aDesc, String aUseDesc, boolean aHidden, String aDesc1, String aDesc2, String aDesc3, String aUseDesc1, String aUseDesc2) {
+        let id = anId;
+        let type = Const.NOTE();
+        let name = aName;
+        let description = aDesc;
+        let desc1 = aDesc1;
+        let desc2 = aDesc2;
+        let desc3 = aDesc3;
+        let useDescription = aUseDesc;
+        let useDesc1 = aUseDesc1;
+        let useDesc2 = aUseDesc2;
+        let hidden = aHidden;
+        let strengthBonus = 0;
+        let against = true;
+        let unlockX = -1;
+        let unlockY = -1;
+        let useEnabled = false;
+
+        return this;
+    }
+
+    /** Constructs a new weapon. */
+    constructor Item newWeapon(int anId, String aName, String aDesc, String aUseDesc, boolean aHidden, int aStrengthBonus, boolean aAgainst, String aDesc1, String aDesc2, String aDesc3, String aUseDesc1, String aUseDesc2) {
+        let id = anId;
+        let type = Const.WEAPON();
+        let name = aName;
+        let description = aDesc;
+        let desc1 = aDesc1;
+        let desc2 = aDesc2;
+        let desc3 = aDesc3;
+        let useDescription = aUseDesc;
+        let useDesc1 = aUseDesc1;
+        let useDesc2 = aUseDesc2;
+        let hidden = aHidden;
+        let strengthBonus = aStrengthBonus;
+        let against = aAgainst;
+        let unlockX = -1;
+        let unlockY = -1;
+        let useEnabled = false;
+
+        return this;
+    }
+
+    /** Constructs a new key. */
+    constructor Item newKey(int anId, String aName, String aDesc, boolean aHidden, int aX, int aY) {
+        let id = anId;
+        let type = Const.KEY();
+        let name = aName;
+        let description = aDesc;
+        let desc1 = "";
+        let desc2 = "";
+        let desc3 = "";
+        let useDescription = "";
+        let useDesc1 = "";
+        let useDesc2 = "";
+        let hidden = aHidden;
+        let strengthBonus = 0;
+        let against = true;
+        let unlockX = aX;
+        let unlockY = aY;
+        let useEnabled = false;
+
+        return this;
+    }
+
+    /** Disposes this object. */
+    method void dispose() {
+        if (~(name = null)) {
+            do name.dispose();
+        }
+        if (~(description = null)) {
+            do description.dispose();
+        }
+        if (~(desc1 = null)) {
+            do desc1.dispose();
+        }
+        if (~(desc2 = null)) {
+            do desc2.dispose();
+        }
+        if (~(desc3 = null)) {
+            do desc3.dispose();
+        }
+        if (~(useDescription = null)) {
+            do useDescription.dispose();
+        }
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Returns name. */
+    method String name() {
+        return name;
+    }
+
+    /** Returns the item type. */
+    method int type() {
+        return type;
+    }
+
+    /** Returns the id. */
+    method int id() {
+        return id;
+    }
+
+    /** Returns description. */
+    method String description() {
+        return description;
+    }
+
+    /** Returns description 1. */
+    method String desc1() {
+        return desc1;
+    }
+
+    /** Returns description 2. */
+    method String desc2() {
+        return desc2;
+    }
+
+    /** Returns description 3. */
+    method String desc3() {
+        return desc3;
+    }
+
+    /** Returns use description. */
+    method String useDescription() {
+        return useDescription;
+    }
+
+    /** Returns use description 1. */
+    method String useDesc1() {
+        return useDesc1;
+    }
+
+    /** Returns use description 2. */
+    method String useDesc2() {
+        return useDesc2;
+    }
+
+    /** Returns whether the item is hidden. */
+    method boolean isHidden() {
+        return hidden;
+    }
+
+    /** Returns the bonus to strength. */
+    method int strengthBonus() {
+        return strengthBonus;
+    }
+
+    /** Returns against. */
+    method boolean against() {
+        return against;
+    }
+
+    /** Returns x of room this key unlocks. */
+    method int unlockX() {
+        return unlockX;
+    }
+
+    /** Returns y of room this key unlocks. */
+    method int unlockY() {
+        return unlockY;
+    }
+
+    /** Returns useEnabled. */
+    method boolean useEnabled() {
+        return useEnabled;
+    }
+
+    /** Reveals hidden item. */
+    method void reveal() {
+        let hidden = false;
+        return;
+    }
+
+    /** Uses item. */
+    method void use(Room room) {
+        if ((type = Const.NOTE()) | (type = Const.WEAPON())) {
+            let useEnabled = true;
+        }
+        if (type = Const.KEY()) {
+            // unlock the room
+            if ((room.roomX() = unlockX) & (room.roomY() = unlockY)) {
+                do room.unlock();
+            }
+        }
+        return;
+    }
+
+}

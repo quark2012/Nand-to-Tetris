@@ -1,0 +1,329 @@
+function Item.new 0
+push constant 16
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 1
+call Const.NOTE 0
+pop this 0
+push argument 1
+pop this 2
+push argument 2
+pop this 3
+push argument 5
+pop this 4
+push argument 6
+pop this 5
+push argument 7
+pop this 6
+push argument 3
+pop this 7
+push argument 8
+pop this 8
+push argument 9
+pop this 9
+push argument 4
+pop this 10
+push constant 0
+pop this 11
+push constant 0
+not
+pop this 12
+push constant 1
+neg
+pop this 13
+push constant 1
+neg
+pop this 14
+push constant 0
+pop this 15
+push pointer 0
+return
+function Item.newWeapon 0
+push constant 16
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 1
+call Const.WEAPON 0
+pop this 0
+push argument 1
+pop this 2
+push argument 2
+pop this 3
+push argument 7
+pop this 4
+push argument 8
+pop this 5
+push argument 9
+pop this 6
+push argument 3
+pop this 7
+push argument 10
+pop this 8
+push argument 11
+pop this 9
+push argument 4
+pop this 10
+push argument 5
+pop this 11
+push argument 6
+pop this 12
+push constant 1
+neg
+pop this 13
+push constant 1
+neg
+pop this 14
+push constant 0
+pop this 15
+push pointer 0
+return
+function Item.newKey 0
+push constant 16
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 1
+call Const.KEY 0
+pop this 0
+push argument 1
+pop this 2
+push argument 2
+pop this 3
+push constant 0
+call String.new 1
+pop this 4
+push constant 0
+call String.new 1
+pop this 5
+push constant 0
+call String.new 1
+pop this 6
+push constant 0
+call String.new 1
+pop this 7
+push constant 0
+call String.new 1
+pop this 8
+push constant 0
+call String.new 1
+pop this 9
+push argument 3
+pop this 10
+push constant 0
+pop this 11
+push constant 0
+not
+pop this 12
+push argument 4
+pop this 13
+push argument 5
+pop this 14
+push constant 0
+pop this 15
+push pointer 0
+return
+function Item.dispose 0
+push argument 0
+pop pointer 0
+push this 2
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 2
+call String.dispose 1
+pop temp 0
+label IF_FALSE0
+push this 3
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 3
+call String.dispose 1
+pop temp 0
+label IF_FALSE1
+push this 4
+push constant 0
+eq
+not
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 4
+call String.dispose 1
+pop temp 0
+label IF_FALSE2
+push this 5
+push constant 0
+eq
+not
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 5
+call String.dispose 1
+pop temp 0
+label IF_FALSE3
+push this 6
+push constant 0
+eq
+not
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push this 6
+call String.dispose 1
+pop temp 0
+label IF_FALSE4
+push this 7
+push constant 0
+eq
+not
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push this 7
+call String.dispose 1
+pop temp 0
+label IF_FALSE5
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Item.name 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Item.type 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Item.id 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Item.description 0
+push argument 0
+pop pointer 0
+push this 3
+return
+function Item.desc1 0
+push argument 0
+pop pointer 0
+push this 4
+return
+function Item.desc2 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function Item.desc3 0
+push argument 0
+pop pointer 0
+push this 6
+return
+function Item.useDescription 0
+push argument 0
+pop pointer 0
+push this 7
+return
+function Item.useDesc1 0
+push argument 0
+pop pointer 0
+push this 8
+return
+function Item.useDesc2 0
+push argument 0
+pop pointer 0
+push this 9
+return
+function Item.isHidden 0
+push argument 0
+pop pointer 0
+push this 10
+return
+function Item.strengthBonus 0
+push argument 0
+pop pointer 0
+push this 11
+return
+function Item.against 0
+push argument 0
+pop pointer 0
+push this 12
+return
+function Item.unlockX 0
+push argument 0
+pop pointer 0
+push this 13
+return
+function Item.unlockY 0
+push argument 0
+pop pointer 0
+push this 14
+return
+function Item.useEnabled 0
+push argument 0
+pop pointer 0
+push this 15
+return
+function Item.reveal 0
+push argument 0
+pop pointer 0
+push constant 0
+pop this 10
+push constant 0
+return
+function Item.use 0
+push argument 0
+pop pointer 0
+push this 0
+call Const.NOTE 0
+eq
+push this 0
+call Const.WEAPON 0
+eq
+or
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+pop this 15
+label IF_FALSE0
+push this 0
+call Const.KEY 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 1
+call Room.roomX 1
+push this 13
+eq
+push argument 1
+call Room.roomY 1
+push this 14
+eq
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push argument 1
+call Room.unlock 1
+pop temp 0
+label IF_FALSE2
+label IF_FALSE1
+push constant 0
+return
