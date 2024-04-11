@@ -59,7 +59,17 @@ class Keyboard {
         }
 
         do Output.backSpace();
-        do Output.printChar(c);
+        if (c = 128) { // newline
+            do Output.printChar(32);
+            do Output.println();
+        } else {
+            if (c = 129) { // backspace
+                do Output.printChar(32);
+            } else {
+                do Output.printChar(c);
+            }
+        }
+
         return c;
     }
 
@@ -96,12 +106,15 @@ class Keyboard {
             let c = Keyboard._readChar();
             do Output.backSpace();
             if (c = 128) { // newline
-                do Output.printChar(c);
+                do Output.printChar(32);
+                do Output.println();
                 return input;
             }
             if (c = 129) { // backspace
                 if (input.length() > 0) {
-                    do Output.printChar(c);
+                    do Output.printChar(32);
+                    do Output.backSpace();
+                    do Output.backSpace();
                     do input.eraseLastChar();
                 }
             } else {

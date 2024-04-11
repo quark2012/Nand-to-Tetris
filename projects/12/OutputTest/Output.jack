@@ -286,7 +286,7 @@ class Output {
      *  and advances the cursor appropriately. */
     function void printString(String s) {
         var int len, i;
-        let len = String.length(s);
+        let len = s.length();
         let i = 0;
         while (i < len) {
             do Output.printChar(s.charAt(i));
